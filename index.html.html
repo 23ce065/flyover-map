@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>G.D. Naidu Flyover Spatial Mapping</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Local Leaflet Stylesheet -->
+  <link rel="stylesheet" href="leaflet.css" />
+  
+  <style>
+    body { 
+      margin: 0; 
+      padding: 0; 
+    }
+    #map { 
+      height: 100vh; 
+      width: 100%; 
+      background: #e5e3df; 
+    }
+    .legend {
+      background: white;
+      padding: 12px;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      line-height: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      border-radius: 5px;
+    }
+    .legend i {
+      width: 14px;
+      height: 14px;
+      float: left;
+      margin-right: 8px;
+      border-radius: 50%;
+    }
+    .legend .line {
+      height: 4px;
+      border-radius: 0;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<!-- Local Script Dependencies -->
+<script src="leaflet.js"></script>
+<script src="data.js"></script>
+
+<script>
+  // 1. Initialize Map view over Coimbatore corridor
+  var map = L.map('map').setView([11.0045, 76.9616], 14);
+
+  // 2. OpenStreetMap Tile Layer
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  // 3. Styling rule: Red for Flyover, Blue for Ground Roads
+  function styleFeature(feature) {
+    var isBridge = feature.properties && (feature.properties.bridge === 'yes' || parseInt(feature.properties.layer) > 0);
+    
+    if (isBridge) {
+      return { color: '#FF0000', weight: 6, opacity: 0.9 }; // RED = Elevated Deck
+    } else {
+      return { color: '#0078FF', weight: 3, opacity: 0.7 }; // BLUE = Ground Roads & U-Turns
+    }
+  }
+
+  // 4. Load spatial vector features
+  var geojsonLayer = L.geoJSON(corridorData, {
+    style: styleFeature,
+    
+    // Render point features as vector circles (fixes broken marker icons)
+    pointToLayer: function (feature, latlng) {
+      return L.circleMarker(latlng, {
+        radius: 5,
+        fillColor: "#FFD700",
+        color: "#000000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.9
+      });
+    },
+    
+    // Configure interactive popups on click
+    onEachFeature: function (feature, layer) {
+      var type = "Surface Road / Junction";
+      if (feature.geometry.type === "Point") {
+        type = "Traffic Signal / Junction Node";
+      } else if (feature.properties && feature.properties.bridge === 'yes') {
+        type = "Elevated Flyover Deck";
+      }
+      
+      var name = (feature.properties && feature.properties.name) ? feature.properties.name : "Unnamed Feature";
+      layer.bindPopup("<b>" + type + "</b><br>" + name);
+    }
+  }).addTo(map);
+
+  // 5. Automatically focus camera bounds on vector data
+  if (geojsonLayer.getBounds().isValid()) {
+    map.fitBounds(geojsonLayer.getBounds());
+  }
+
+  // 6. Map Legend
+  var legend = L.control({position: 'bottomright'});
+  legend.onAdd = function (map) {
+    var div = L.DomUtil.create('div', 'legend');
+    div.innerHTML += '<b>Spatial Layers</b><br>';
+    div.innerHTML += '<i class="line" style="background: #FF0000"></i> Elevated Flyover Deck<br>';
+    div.innerHTML += '<i class="line" style="background: #0078FF"></i> Surface Roads & U-Turns<br>';
+    div.innerHTML += '<i style="background: #FFD700; border: 1px solid #000"></i> Junctions & Signals<br>';
+    return div;
+  };
+  legend.addTo(map);
+</script>
+
+</body>
+</html>
