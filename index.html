@@ -99,6 +99,82 @@
       layer.bindPopup("<b>" + type + "</b><br>" + name);
     }
   }).addTo(map);
+// 4A. Load survey locations from GeoJSON
+fetch('survey_locations.geojson')
+  .then(response => response.json())
+  .then(surveyData => {
+
+    var surveyLayer = L.geoJSON(surveyData, {
+
+      pointToLayer: function(feature, latlng) {
+        return L.circleMarker(latlng, {
+          radius: 9,
+          fillColor: "#FF6600",
+          color: "#FFFFFF",
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.9
+        });
+      },
+
+      onEachFeature: function(feature, layer) {
+
+        var p = feature.properties;
+
+        var popup = "<div style='font-family:Arial;'>" +
+          "<h3 style='margin:0 0 8px 0;'>" + p.name + "</h3>" +
+          "<b>Survey Location</b><br><br>";
+
+        if (p.total_vehicles_day_towards_city) {
+          popup +=
+            "<b>Towards City</b><br>" +
+            "Total Vehicles/day: " +
+            Number(p.total_vehicles_day_towards_city).toLocaleString() + "<br>" +
+            "Flyover Vehicles/day: " +
+            Number(p.flyover_vehicles_day_towards_city).toLocaleString() + "<br>" +
+            "At-Grade Vehicles/day: " +
+            Number(p.at_grade_vehicles_day_towards_city).toLocaleString() +
+            "<br><br>";
+        }
+
+        if (p.total_vehicles_day_towards_goldwins) {
+          popup +=
+            "<b>Towards Goldwins</b><br>" +
+            "Total Vehicles/day: " +
+            Number(p.total_vehicles_day_towards_goldwins).toLocaleString() + "<br>" +
+            "Flyover Vehicles/day: " +
+            Number(p.flyover_vehicles_day_towards_goldwins).toLocaleString() + "<br>" +
+            "At-Grade Vehicles/day: " +
+            Number(p.at_grade_vehicles_day_towards_goldwins).toLocaleString() +
+            "<br><br>";
+        }
+
+        popup += "<b>Location:</b> " + p.name;
+
+        popup += "</div>";
+
+        layer.bindPopup(popup);
+      }
+
+    }).addTo(map);
+
+    // Add labels for the three survey locations
+    surveyLayer.eachLayer(function(layer) {
+
+      var name = layer.feature.properties.name;
+
+      layer.bindTooltip(name, {
+        permanent: true,
+        direction: 'top',
+        offset: [0, -10]
+      });
+
+    });
+
+  })
+  .catch(error => {
+    console.error("Error loading survey GeoJSON:", error);
+  });
 
   // 5. Automatically focus camera bounds on vector data
   if (geojsonLayer.getBounds().isValid()) {
