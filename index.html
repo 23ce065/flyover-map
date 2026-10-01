@@ -59,58 +59,165 @@
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
-  // 3. Display ONLY the G.D. Naidu Flyover
-function isGDNaiduFlyover(feature) {
+// 3. Load ONLY the G.D. Naidu Flyover
+fetch('gd_naidu_flyover.geojson')
+  .then(response => response.json())
+  .then(flyoverData => {
 
-  var p = feature.properties || {};
+    var flyoverLayer = L.geoJSON(flyoverData, {
 
-  var name = (
-    p.name ||
-    p["bridge:name"] ||
-    p.alt_name ||
-    ""
-  ).toLowerCase();
+      style: {
+        color: "#FF0000",
+        weight: 7,
+        opacity: 0.95
+      },
 
-  // G.D. Naidu Flyover is mapped as an elevated/bridge primary road
-  var isBridge = p.bridge === "yes";
-  var isElevated = parseInt(p.layer || "0") > 0;
-  var isPrimary = p.highway === "primary";
+      onEachFeature: function(feature, layer) {
+        layer.bindPopup(
+          "<b>G.D. Naidu Flyover</b><br>" +
+          "Goldwins – Uppilipalayam"
+        );
+      }
 
-  // Match the actual flyover naming used in the GeoJSON
-  var hasNaiduName =
-    name.includes("naidu flyover");
+    }).addTo(map);
 
-  return isPrimary && (isBridge || isElevated) && hasNaiduName;
-}
+    // Zoom to the flyover
+    if (flyoverLayer.getBounds().isValid()) {
+      map.fitBounds(flyoverLayer.getBounds(), {
+        padding: [30, 30]
+      });
+    }
 
-var geojsonLayer = L.geoJSON(corridorData, {
-
-  filter: isGDNaiduFlyover,
-
-  style: function(feature) {
-    return {
-      color: "#FF0000",
-      weight: 6,
-      opacity: 0.95
-    };
-  },
-
-  onEachFeature: function(feature, layer) {
-
-    var p = feature.properties || {};
-
-    var name =
-      p.name ||
-      p["bridge:name"] ||
-      "G.D. Naidu Flyover";
-
-    layer.bindPopup(
-      "<b>G.D. Naidu Flyover</b><br>" +
-      name
+  })
+  .catch(error => {
+    console.error(
+      "Error loading G.D. Naidu Flyover GeoJSON:",
+      error
     );
-  }
+  });
 
-}).addTo(map);
+
+// 4. Load Survey Locations
+fetch('survey_locations.geojson')
+  .then(response => response.json())
+  .then(surveyData => {
+
+    var surveyLayer = L.geoJSON(surveyData, {
+
+      pointToLayer: function(feature, latlng) {
+
+        var p = feature.properties || {};
+
+        var totalCity =
+          Number(p.total_vehicles_day_towards_city || 0);
+
+        var totalGoldwins =
+          Number(p.total_vehicles_day_towards_goldwins || 0);
+
+        var totalTraffic =
+          totalCity + totalGoldwins;
+
+        var radius = 9;
+
+        if (totalTraffic >= 120000) {
+          radius = 16;
+        } else if (totalTraffic >= 80000) {
+          radius = 13;
+        } else if (totalTraffic >= 50000) {
+          radius = 10;
+        }
+
+        return L.circleMarker(latlng, {
+          radius: radius,
+          fillColor: "#FF6600",
+          color: "#FFFFFF",
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.9
+        });
+      },
+
+      onEachFeature: function(feature, layer) {
+
+        var p = feature.properties || {};
+
+        var popup =
+          "<div style='font-family:Arial;'>" +
+          "<h3 style='margin:0 0 8px 0;'>" +
+          p.name +
+          "</h3>" +
+          "<b>Traffic Survey Location</b><br><br>";
+
+        if (p.total_vehicles_day_towards_city) {
+
+          popup +=
+            "<b>Towards City</b><br>" +
+            "Total Vehicles/day: " +
+            Number(
+              p.total_vehicles_day_towards_city
+            ).toLocaleString() +
+            "<br>" +
+
+            "Flyover Vehicles/day: " +
+            Number(
+              p.flyover_vehicles_day_towards_city
+            ).toLocaleString() +
+            "<br>" +
+
+            "At-Grade Vehicles/day: " +
+            Number(
+              p.at_grade_vehicles_day_towards_city
+            ).toLocaleString() +
+            "<br><br>";
+        }
+
+        if (p.total_vehicles_day_towards_goldwins) {
+
+          popup +=
+            "<b>Towards Goldwins</b><br>" +
+            "Total Vehicles/day: " +
+            Number(
+              p.total_vehicles_day_towards_goldwins
+            ).toLocaleString() +
+            "<br>" +
+
+            "Flyover Vehicles/day: " +
+            Number(
+              p.flyover_vehicles_day_towards_goldwins
+            ).toLocaleString() +
+            "<br>" +
+
+            "At-Grade Vehicles/day: " +
+            Number(
+              p.at_grade_vehicles_day_towards_goldwins
+            ).toLocaleString() +
+            "<br><br>";
+        }
+
+        popup += "</div>";
+
+        layer.bindPopup(popup);
+
+        // Location label
+        layer.bindTooltip(
+          p.name,
+          {
+            permanent: true,
+            direction: "top",
+            offset: [0, -10]
+          }
+        );
+      }
+
+    }).addTo(map);
+
+  })
+  .catch(error => {
+    console.error(
+      "Error loading survey locations:",
+      error
+    );
+  });
 // 4A. Load survey locations from GeoJSON
 fetch('survey_locations.geojson')
   .then(response => response.json())
