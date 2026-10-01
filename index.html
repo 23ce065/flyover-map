@@ -352,47 +352,36 @@ if (flyoverLayer.getBounds().isValid()) {
   // ==========================================
   // 5. LEGEND
   // ==========================================
+var legend = L.control({
+    position: 'bottomright'
+});
 
-  var legend =
-    L.control({
-      position: 'bottomright'
-    });
+legend.onAdd = function(map) {
 
+    var div = L.DomUtil.create(
+        'div',
+        'legend'
+    );
 
-  legend.onAdd =
-    function(map) {
+    div.innerHTML +=
+        '<b>G.D. Naidu Flyover Study Map</b><br>';
 
-      var div =
-        L.DomUtil.create(
-          'div',
-          'legend'
-        );
-
-
-      div.innerHTML +=
-        '<b>Spatial Layers</b><br>';
-
-
-      div.innerHTML +=
+    div.innerHTML +=
         '<i class="line" ' +
-        'style="background:#FF0000">' +
-        '</i>' +
+        'style="background:#FF0000"></i>' +
         ' G.D. Naidu Flyover<br>';
 
-
-      div.innerHTML +=
-        '<i style="background:#FF6600;' +
+    div.innerHTML +=
+        '<i style="' +
+        'background:#FF6600;' +
         'border:1px solid #000">' +
         '</i>' +
         ' Traffic Survey Location<br>';
 
+    return div;
+};
 
-      return div;
-
-    };
-
-
-  legend.addTo(map);
+legend.addTo(map);
 
 </script>
 
