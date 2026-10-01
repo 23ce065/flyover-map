@@ -71,34 +71,52 @@
   }
 
   // 4. Load spatial vector features
-  var geojsonLayer = L.geoJSON(corridorData, {
-    style: styleFeature,
-    
-    // Render point features as vector circles (fixes broken marker icons)
-    pointToLayer: function (feature, latlng) {
-      return L.circleMarker(latlng, {
-        radius: 5,
-        fillColor: "#FFD700",
-        color: "#000000",
-        weight: 1,
-        opacity: 1,
-        fillOpacity: 0.9
-      });
+ // 4. Display ONLY the G.D. Naidu Flyover from the corridor GeoJSON
+var geojsonLayer = L.geoJSON(corridorData, {
+
+    filter: function(feature) {
+        var name = "";
+
+        if (feature.properties) {
+            name =
+                feature.properties.name ||
+                feature.properties.Name ||
+                feature.properties.NAME ||
+                "";
+        }
+
+        return name.toLowerCase().includes("g. d. naidu flyover") ||
+               name.toLowerCase().includes("g.d. naidu flyover") ||
+               name.toLowerCase().includes("gd naidu flyover");
     },
-    
-    // Configure interactive popups on click
-    onEachFeature: function (feature, layer) {
-      var type = "Surface Road / Junction";
-      if (feature.geometry.type === "Point") {
-        type = "Traffic Signal / Junction Node";
-      } else if (feature.properties && feature.properties.bridge === 'yes') {
-        type = "Elevated Flyover Deck";
-      }
-      
-      var name = (feature.properties && feature.properties.name) ? feature.properties.name : "Unnamed Feature";
-      layer.bindPopup("<b>" + type + "</b><br>" + name);
+
+    style: function(feature) {
+        return {
+            color: "#FF0000",
+            weight: 6,
+            opacity: 0.9
+        };
+    },
+
+    onEachFeature: function(feature, layer) {
+
+        var name = "";
+
+        if (feature.properties) {
+            name =
+                feature.properties.name ||
+                feature.properties.Name ||
+                feature.properties.NAME ||
+                "G.D. Naidu Flyover";
+        }
+
+        layer.bindPopup(
+            "<b>" + name + "</b><br>" +
+            "G.D. Naidu Flyover"
+        );
     }
-  }).addTo(map);
+
+}).addTo(map);
 // 4A. Load survey locations from GeoJSON
 fetch('survey_locations.geojson')
   .then(response => response.json())
