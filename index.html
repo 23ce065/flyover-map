@@ -12,6 +12,10 @@
 
 <style>
 
+/* =========================================================
+   BASIC PAGE
+   ========================================================= */
+
 html, body {
     margin: 0;
     padding: 0;
@@ -25,116 +29,150 @@ html, body {
     background: #e5e3df;
 }
 
-/* ================================
+
+/* =========================================================
    LEGEND
-   ================================ */
+   ========================================================= */
 
 .legend {
     background: white;
-    padding: 12px 14px;
+    padding: 10px 12px;
     font-family: Arial, sans-serif;
-    font-size: 13px;
-    line-height: 22px;
+    font-size: 12px;
+    line-height: 20px;
     color: #222;
-    box-shadow: 0 0 15px rgba(0,0,0,0.25);
-    border-radius: 6px;
-    min-width: 210px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.25);
+    border-radius: 5px;
+    min-width: 190px;
 }
 
 .legend-title {
     font-weight: bold;
-    font-size: 14px;
-    margin-bottom: 7px;
+    font-size: 13px;
+    margin-bottom: 6px;
 }
 
 .legend-row {
     display: flex;
     align-items: center;
-    margin: 5px 0;
+    margin: 4px 0;
 }
 
+
+/* =========================================================
+   FLYOVER LEGEND
+   ========================================================= */
+
 .red-line {
-    width: 30px;
-    height: 5px;
+    width: 28px;
+    height: 4px;
     background: #ff0000;
-    margin-right: 8px;
+    margin-right: 7px;
     border-radius: 2px;
 }
 
+
+/* =========================================================
+   SURVEY LOCATION
+   ========================================================= */
+
 .orange-circle {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     background: #ff6600;
     border: 2px solid white;
     box-shadow: 0 0 0 1px #555;
     border-radius: 50%;
-    margin-right: 8px;
+    margin-right: 7px;
 }
 
-/* ================================
+
+/* =========================================================
    SURVEY LABEL
-   ================================ */
+   ========================================================= */
 
 .survey-label {
     background: white;
     border: 1px solid #555;
     border-radius: 4px;
-    padding: 3px 6px;
+    padding: 2px 5px;
     font-family: Arial, sans-serif;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
     color: #222;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
 .survey-label::before {
     display: none;
 }
 
-/* ================================
-   SIGNAL MARKER
-   ================================ */
+
+/* =========================================================
+   SMALL TRAFFIC SIGNAL MARKER
+   ========================================================= */
 
 .signal-marker {
-    width: 30px;
-    height: 30px;
+
+    width: 20px;
+    height: 20px;
+
     background: #d71920;
-    border: 3px solid white;
+
+    border: 2px solid white;
+
     border-radius: 50%;
 
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
     color: white;
+
     font-family: Arial, sans-serif;
-    font-size: 16px;
+
+    font-size: 10px;
+
     font-weight: bold;
 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+
 }
 
-/* ================================
-   U-TURN MARKER
-   ================================ */
+
+/* =========================================================
+   SMALL U-TURN MARKER
+   ========================================================= */
 
 .uturn-marker {
-    width: 30px;
-    height: 30px;
+
+    width: 20px;
+    height: 20px;
+
     background: #1565c0;
-    border: 3px solid white;
+
+    border: 2px solid white;
+
     border-radius: 50%;
 
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
     color: white;
+
     font-family: Arial, sans-serif;
-    font-size: 15px;
+
+    font-size: 10px;
+
     font-weight: bold;
 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+
 }
 
 </style>
@@ -149,6 +187,7 @@ html, body {
 <script src="leaflet.js"></script>
 
 <script>
+
 
 /* =========================================================
    1. MAP
@@ -174,10 +213,12 @@ L.tileLayer(
 
 
 /* =========================================================
-   3. G.D. NAIDU FLYOVER
+   3. G.D. NAIDU FLYOVER / STUDY CORRIDOR
    ========================================================= */
 
 var flyoverCoordinates = [
+
+    /* Uppilipalayam side */
 
     [11.0024033, 76.9667998],
     [11.0026188, 76.9678953],
@@ -213,6 +254,8 @@ var flyoverCoordinates = [
     [11.0110998, 76.9830518],
     [11.0116305, 76.9840206],
     [11.0116852, 76.9841164],
+
+    /* Nava India area */
 
     [11.0122932, 76.9851796],
     [11.0125527, 76.9855550],
@@ -308,6 +351,8 @@ var flyoverCoordinates = [
     [11.0257991, 77.0173667],
     [11.0258366, 77.0175840],
 
+    /* Goldwins side */
+
     [11.0267837, 77.0215362],
     [11.0269044, 77.0218028],
     [11.0269730, 77.0219655],
@@ -371,7 +416,7 @@ var flyoverCoordinates = [
 
 
 /* =========================================================
-   4. FLYOVER LINE
+   4. DRAW FLYOVER
    ========================================================= */
 
 var flyover = L.polyline(
@@ -385,6 +430,7 @@ var flyover = L.polyline(
     }
 ).addTo(map);
 
+
 flyover.bindPopup(
     "<b>G.D. Naidu Flyover</b><br><br>" +
     "Avinashi Road Corridor<br>" +
@@ -393,7 +439,7 @@ flyover.bindPopup(
 
 
 /* =========================================================
-   5. SURVEY LOCATIONS
+   5. SURVEY LOCATIONS + TRAFFIC DATA
    ========================================================= */
 
 var surveyLocations = [
@@ -412,6 +458,7 @@ var surveyLocations = [
         goldwinsAtGrade: 48553
     },
 
+
     {
         name: "Nava India",
         lat: 11.020806,
@@ -425,6 +472,7 @@ var surveyLocations = [
         goldwinsFlyover: 56086,
         goldwinsAtGrade: 98041
     },
+
 
     {
         name: "Uppilipalayam",
@@ -444,32 +492,48 @@ var surveyLocations = [
 
 
 /* =========================================================
-   6. SURVEY MARKERS
+   6. ORANGE SURVEY MARKERS
    ========================================================= */
 
 surveyLocations.forEach(function(location) {
 
     var marker = L.circleMarker(
+
         [location.lat, location.lng],
+
         {
-            radius: 9,
+            radius: 8,
+
             fillColor: "#ff6600",
+
             color: "#ffffff",
-            weight: 3,
+
+            weight: 2,
+
             opacity: 1,
+
             fillOpacity: 0.95
         }
+
     ).addTo(map);
 
+
     marker.bindTooltip(
+
         location.name,
+
         {
             permanent: true,
+
             direction: "top",
-            offset: [0, -12],
+
+            offset: [0, -10],
+
             className: "survey-label"
         }
+
     );
+
 
     marker.bindPopup(
 
@@ -481,10 +545,12 @@ surveyLocations.forEach(function(location) {
 
         "Total Vehicles/day: " +
         location.cityTotal.toLocaleString() +
+
         "<br>" +
 
         "Flyover Vehicles/day: " +
         location.cityFlyover.toLocaleString() +
+
         "<br>" +
 
         "At-Grade Vehicles/day: " +
@@ -496,10 +562,12 @@ surveyLocations.forEach(function(location) {
 
         "Total Vehicles/day: " +
         location.goldwinsTotal.toLocaleString() +
+
         "<br>" +
 
         "Flyover Vehicles/day: " +
         location.goldwinsFlyover.toLocaleString() +
+
         "<br>" +
 
         "At-Grade Vehicles/day: " +
@@ -514,11 +582,6 @@ surveyLocations.forEach(function(location) {
    7. TRAFFIC SIGNAL LOCATIONS
    ========================================================= */
 
-/*
-   REFERENCE LOCATIONS.
-   Verify exact location/status during field survey.
-*/
-
 var trafficSignals = [
 
     {
@@ -527,11 +590,13 @@ var trafficSignals = [
         lng: 76.970800
     },
 
+
     {
         name: "Nava India Junction",
         lat: 11.021700,
         lng: 76.994700
     },
+
 
     {
         name: "Hope College Junction",
@@ -539,11 +604,13 @@ var trafficSignals = [
         lng: 77.014600
     },
 
+
     {
         name: "Pioneer Mill Junction",
         lat: 11.027500,
         lng: 77.022800
     },
+
 
     {
         name: "Goldwins Junction",
@@ -555,7 +622,7 @@ var trafficSignals = [
 
 
 /* =========================================================
-   8. DRAW SIGNALS
+   8. DRAW SMALL TRAFFIC SIGNALS
    ========================================================= */
 
 trafficSignals.forEach(function(signal) {
@@ -567,30 +634,29 @@ trafficSignals.forEach(function(signal) {
         html:
             '<div class="signal-marker">S</div>',
 
-        iconSize: [36, 36],
+        iconSize: [24, 24],
 
-        iconAnchor: [18, 18],
+        iconAnchor: [12, 12],
 
-        popupAnchor: [0, -18]
+        popupAnchor: [0, -12]
 
     });
 
 
-    var marker = L.marker(
+    var signalMarker = L.marker(
+
         [signal.lat, signal.lng],
+
         {
             icon: signalIcon,
 
-            /*
-             * Keeps signal marker above
-             * the flyover line and survey marker.
-             */
             zIndexOffset: 1000
         }
+
     ).addTo(map);
 
 
-    marker.bindPopup(
+    signalMarker.bindPopup(
 
         "<b>TRAFFIC SIGNAL</b><br><br>" +
 
@@ -611,11 +677,6 @@ trafficSignals.forEach(function(signal) {
    9. U-TURN LOCATIONS
    ========================================================= */
 
-/*
-   REFERENCE LOCATIONS.
-   Verify exact location/status during field survey.
-*/
-
 var uTurnLocations = [
 
     {
@@ -624,11 +685,13 @@ var uTurnLocations = [
         lng: 76.972000
     },
 
+
     {
         name: "U-Turn near Nava India",
         lat: 11.020500,
         lng: 76.995500
     },
+
 
     {
         name: "U-Turn near Hope College",
@@ -636,11 +699,13 @@ var uTurnLocations = [
         lng: 77.016500
     },
 
+
     {
         name: "U-Turn near Pioneer Mill",
         lat: 11.028200,
         lng: 77.024000
     },
+
 
     {
         name: "U-Turn near Goldwins",
@@ -652,7 +717,7 @@ var uTurnLocations = [
 
 
 /* =========================================================
-   10. DRAW U-TURNS
+   10. DRAW SMALL U-TURNS
    ========================================================= */
 
 uTurnLocations.forEach(function(uTurn) {
@@ -664,26 +729,29 @@ uTurnLocations.forEach(function(uTurn) {
         html:
             '<div class="uturn-marker">U</div>',
 
-        iconSize: [36, 36],
+        iconSize: [24, 24],
 
-        iconAnchor: [18, 18],
+        iconAnchor: [12, 12],
 
-        popupAnchor: [0, -18]
+        popupAnchor: [0, -12]
 
     });
 
 
-    var marker = L.marker(
+    var uTurnMarker = L.marker(
+
         [uTurn.lat, uTurn.lng],
+
         {
             icon: uTurnIcon,
 
             zIndexOffset: 1100
         }
+
     ).addTo(map);
 
 
-    marker.bindPopup(
+    uTurnMarker.bindPopup(
 
         "<b>U-TURN LOCATION</b><br><br>" +
 
@@ -701,26 +769,33 @@ uTurnLocations.forEach(function(uTurn) {
 
 
 /* =========================================================
-   11. MAP LEGEND
+   11. MAIN LEGEND
    ========================================================= */
 
 var legend = L.control({
+
     position: "bottomright"
+
 });
 
 
 legend.onAdd = function() {
 
     var div = L.DomUtil.create(
+
         "div",
+
         "legend"
+
     );
 
 
     div.innerHTML =
 
         "<div class='legend-title'>" +
+
         "G.D. Naidu Flyover Study Map" +
+
         "</div>" +
 
 
@@ -745,8 +820,12 @@ legend.onAdd = function() {
         "<div class='legend-row'>" +
 
         "<div class='signal-marker' " +
-        "style='width:20px;height:20px;font-size:11px;" +
-        "border-width:2px;margin-right:8px;'>" +
+
+        "style='width:16px;" +
+        "height:16px;" +
+        "font-size:8px;" +
+        "border-width:2px;" +
+        "margin-right:7px;'>" +
 
         "S" +
 
@@ -760,8 +839,12 @@ legend.onAdd = function() {
         "<div class='legend-row'>" +
 
         "<div class='uturn-marker' " +
-        "style='width:20px;height:20px;font-size:11px;" +
-        "border-width:2px;margin-right:8px;'>" +
+
+        "style='width:16px;" +
+        "height:16px;" +
+        "font-size:8px;" +
+        "border-width:2px;" +
+        "margin-right:7px;'>" +
 
         "U" +
 
@@ -781,7 +864,7 @@ legend.addTo(map);
 
 
 /* =========================================================
-   12. FIT MAP TO STUDY AREA
+   12. FIT MAP TO ALL FEATURES
    ========================================================= */
 
 var allPoints = [];
@@ -801,20 +884,26 @@ flyoverCoordinates.forEach(function(point) {
 surveyLocations.forEach(function(location) {
 
     allPoints.push([
+
         location.lat,
+
         location.lng
+
     ]);
 
 });
 
 
-/* Signals */
+/* Traffic signals */
 
 trafficSignals.forEach(function(signal) {
 
     allPoints.push([
+
         signal.lat,
+
         signal.lng
+
     ]);
 
 });
@@ -825,18 +914,26 @@ trafficSignals.forEach(function(signal) {
 uTurnLocations.forEach(function(uTurn) {
 
     allPoints.push([
+
         uTurn.lat,
+
         uTurn.lng
+
     ]);
 
 });
 
 
 map.fitBounds(
+
     L.latLngBounds(allPoints),
+
     {
+
         padding: [50, 50]
+
     }
+
 );
 
 
@@ -852,23 +949,34 @@ setTimeout(function() {
 
 
 /* =========================================================
-   14. CONSOLE
+   14. CONSOLE MESSAGE
    ========================================================= */
 
 console.log(
+
     "G.D. Naidu Flyover Study Map loaded successfully."
+
 );
 
-console.log(
-    "Survey locations loaded."
-);
 
 console.log(
+
+    "Traffic survey locations loaded."
+
+);
+
+
+console.log(
+
     "Traffic signal locations loaded."
+
 );
 
+
 console.log(
+
     "U-turn locations loaded."
+
 );
 
 </script>
