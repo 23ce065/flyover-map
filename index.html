@@ -59,69 +59,56 @@
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
-  // 3. Styling rule: Red for Flyover, Blue for Ground Roads
-  function styleFeature(feature) {
-    var isBridge = feature.properties && (feature.properties.bridge === 'yes' || parseInt(feature.properties.layer) > 0);
-    
-    if (isBridge) {
-      return { color: '#FF0000', weight: 6, opacity: 0.9 }; // RED = Elevated Deck
-    } else {
-      return { color: '#0078FF', weight: 3, opacity: 0.7 }; // BLUE = Ground Roads & U-Turns
-    }
-  }
+  // 3. Display ONLY the G.D. Naidu Flyover
+function isGDNaiduFlyover(feature) {
 
-  // 4. Load spatial vector features
- // 4. Display ONLY the G.D. Naidu Flyover from the corridor GeoJSON
+  var p = feature.properties || {};
+
+  var name = (
+    p.name ||
+    p["bridge:name"] ||
+    p.alt_name ||
+    ""
+  ).toLowerCase();
+
+  // G.D. Naidu Flyover is mapped as an elevated/bridge primary road
+  var isBridge = p.bridge === "yes";
+  var isElevated = parseInt(p.layer || "0") > 0;
+  var isPrimary = p.highway === "primary";
+
+  // Match the actual flyover naming used in the GeoJSON
+  var hasNaiduName =
+    name.includes("naidu flyover");
+
+  return isPrimary && (isBridge || isElevated) && hasNaiduName;
+}
+
 var geojsonLayer = L.geoJSON(corridorData, {
 
-    filter: function(feature) {
+  filter: isGDNaiduFlyover,
+
+  style: function(feature) {
+    return {
+      color: "#FF0000",
+      weight: 6,
+      opacity: 0.95
+    };
+  },
+
+  onEachFeature: function(feature, layer) {
+
     var p = feature.properties || {};
 
-    var name = (
-        p.name ||
-        p.Name ||
-        p.NAME ||
-        ""
-    ).toLowerCase();
+    var name =
+      p.name ||
+      p["bridge:name"] ||
+      "G.D. Naidu Flyover";
 
-    var altName = (
-        p.alt_name ||
-        p["bridge:name"] ||
-        ""
-    ).toLowerCase();
-
-    var isFlyover =
-        name.includes("naidu flyover") ||
-        altName.includes("naidu flyover");
-
-    return isFlyover;
-},
-
-    style: function(feature) {
-        return {
-            color: "#FF0000",
-            weight: 6,
-            opacity: 0.9
-        };
-    },
-
-    onEachFeature: function(feature, layer) {
-
-        var name = "";
-
-        if (feature.properties) {
-            name =
-                feature.properties.name ||
-                feature.properties.Name ||
-                feature.properties.NAME ||
-                "G.D. Naidu Flyover";
-        }
-
-        layer.bindPopup(
-            "<b>" + name + "</b><br>" +
-            "G.D. Naidu Flyover"
-        );
-    }
+    layer.bindPopup(
+      "<b>G.D. Naidu Flyover</b><br>" +
+      name
+    );
+  }
 
 }).addTo(map);
 // 4A. Load survey locations from GeoJSON
