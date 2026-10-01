@@ -1,4 +1,4 @@
-﻿{
+{
   "type": "FeatureCollection",
   "features": [
     {
@@ -7,9 +7,11 @@
         "name": "Goldwins",
         "type": "Survey Location",
         "direction": "Towards City / Towards Goldwins",
+
         "total_vehicles_day_towards_city": 73477,
         "flyover_vehicles_day_towards_city": 25358,
         "at_grade_vehicles_day_towards_city": 48119,
+
         "total_vehicles_day_towards_goldwins": 71063,
         "flyover_vehicles_day_towards_goldwins": 22510,
         "at_grade_vehicles_day_towards_goldwins": 48553
@@ -19,27 +21,40 @@
         "coordinates": [77.045083, 11.043222]
       }
     },
+
     {
       "type": "Feature",
       "properties": {
         "name": "Nava India",
         "type": "Survey Location",
-        "direction": "Towards City / Towards Goldwins"
+        "original_dataset_name": "Flyover Centre",
+        "direction": "Towards City / Towards Goldwins",
+
+        "total_vehicles_day_towards_city": 141995,
+        "flyover_vehicles_day_towards_city": 59575,
+        "at_grade_vehicles_day_towards_city": 82420,
+
+        "total_vehicles_day_towards_goldwins": 154127,
+        "flyover_vehicles_day_towards_goldwins": 56086,
+        "at_grade_vehicles_day_towards_goldwins": 98041
       },
       "geometry": {
         "type": "Point",
         "coordinates": [76.993389, 11.020806]
       }
     },
+
     {
       "type": "Feature",
       "properties": {
         "name": "Uppilipalayam",
         "type": "Survey Location",
         "direction": "Towards City / Towards Goldwins",
+
         "total_vehicles_day_towards_city": 29512,
         "flyover_vehicles_day_towards_city": 13364,
         "at_grade_vehicles_day_towards_city": 16148,
+
         "total_vehicles_day_towards_goldwins": 35808,
         "flyover_vehicles_day_towards_goldwins": 12254,
         "at_grade_vehicles_day_towards_goldwins": 23554
