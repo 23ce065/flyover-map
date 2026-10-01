@@ -78,71 +78,62 @@
 
 
   // ==========================================
-  // 3. LOAD ONLY G.D. NAIDU FLYOVER
-  // ==========================================
+// 3. Display ONLY the actual G.D. Naidu Flyover
+// from the original data.geojson
 
-  fetch('gd_naidu_flyover.geojson')
-    .then(function(response) {
+var flyoverLayer = L.geoJSON(corridorData, {
 
-      if (!response.ok) {
-        throw new Error(
-          'Could not load gd_naidu_flyover.geojson'
+    filter: function(feature) {
+
+        var p = feature.properties || {};
+
+        var name = String(
+            p.name ||
+            p["bridge:name"] ||
+            p.alt_name ||
+            ""
+        ).toLowerCase();
+
+        return (
+            name.includes("naidu flyover") ||
+            name.includes("g. d. naidu flyover") ||
+            name.includes("gd naidu flyover")
         );
-      }
+    },
 
-      return response.json();
-    })
+    style: function(feature) {
 
-    .then(function(flyoverData) {
-
-      var flyoverLayer = L.geoJSON(
-        flyoverData,
-        {
-
-          style: {
-            color: '#FF0000',
+        return {
+            color: "#FF0000",
             weight: 7,
             opacity: 1
-          },
+        };
 
-          onEachFeature: function(
-            feature,
-            layer
-          ) {
+    },
 
-            layer.bindPopup(
-              '<b>G.D. Naidu Flyover</b><br>' +
-              'Goldwins → Nava India → Uppilipalayam'
-            );
+    onEachFeature: function(feature, layer) {
 
-          }
-
-        }
-      ).addTo(map);
-
-
-      // Zoom to flyover
-      if (
-        flyoverLayer.getBounds().isValid()
-      ) {
-
-        map.fitBounds(
-          flyoverLayer.getBounds(),
-          {
-            padding: [40, 40]
-          }
+        layer.bindPopup(
+            "<b>G.D. Naidu Flyover</b><br>" +
+            "Actual mapped flyover segment"
         );
 
-      }
+    }
 
-    })
+}).addTo(map);
 
-    .catch(function(error) {
 
-      console.error(
-        'Flyover loading error:',
-        error
-      );
+// Zoom to the complete actual flyover
+if (flyoverLayer.getBounds().isValid()) {
+
+    map.fitBounds(
+        flyoverLayer.getBounds(),
+        {
+            padding: [30, 30]
+        }
+    );
+
+}
 
       alert(
         'G.D. Naidu Flyover GeoJSON could not be loaded.'
