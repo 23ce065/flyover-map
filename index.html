@@ -1,389 +1,708 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <title>G.D. Naidu Flyover Spatial Mapping</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="leaflet.css">
+    <meta charset="utf-8">
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-    #map {
-      height: 100vh;
-      width: 100%;
-      background: #e5e3df;
-    }
+    <title>G.D. Naidu Flyover Spatial Mapping</title>
 
-    .legend {
-      background: white;
-      padding: 12px;
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      line-height: 20px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
-      border-radius: 5px;
-    }
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="leaflet.css">
 
-    .legend i {
-      width: 14px;
-      height: 14px;
-      float: left;
-      margin-right: 8px;
-      border-radius: 50%;
-    }
+    <style>
 
-    .legend .line {
-      height: 4px;
-      border-radius: 0;
-      margin-top: 8px;
-    }
-  </style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #map {
+            width: 100%;
+            height: 100vh;
+            background: #e5e3df;
+        }
+
+        /* =========================
+           LEGEND
+           ========================= */
+
+        .legend {
+            background: white;
+            padding: 12px 14px;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            line-height: 22px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.25);
+            border-radius: 5px;
+            min-width: 190px;
+        }
+
+        .legend-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        .legend-row {
+            display: flex;
+            align-items: center;
+            margin: 3px 0;
+            white-space: nowrap;
+        }
+
+        .legend-line {
+            width: 28px;
+            height: 5px;
+            margin-right: 8px;
+            display: inline-block;
+        }
+
+        .legend-circle {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+            border: 2px solid white;
+            box-shadow: 0 0 0 1px #555;
+        }
+
+        /* =========================
+           SURVEY LABEL
+           ========================= */
+
+        .leaflet-tooltip {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        /* =========================
+           POPUP
+           ========================= */
+
+        .survey-popup {
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            line-height: 20px;
+        }
+
+        .survey-popup h3 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+        }
+
+    </style>
+
 </head>
+
 
 <body>
 
 <div id="map"></div>
 
+
+<!-- Leaflet JavaScript -->
 <script src="leaflet.js"></script>
+
 
 <script>
 
-  // ==========================================
-  // 1. INITIALIZE MAP
-  // ==========================================
+    /* =========================================================
+       1. INITIALIZE MAP
+       ========================================================= */
 
-  var map = L.map('map').setView(
-    [11.020, 77.000],
-    13
-  );
-
-
-  // ==========================================
-  // 2. OPENSTREETMAP BASE MAP
-  // ==========================================
-
-  L.tileLayer(
-    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap contributors'
-    }
-  ).addTo(map);
-
-
-  // ==========================================
-// 3. Display ONLY the actual G.D. Naidu Flyover
-// from the original data.geojson
-
-var flyoverLayer = L.geoJSON(corridorData, {
-
-    filter: function(feature) {
-
-        var p = feature.properties || {};
-
-        var name = String(
-            p.name ||
-            p["bridge:name"] ||
-            p.alt_name ||
-            ""
-        ).toLowerCase();
-
-        return (
-            name.includes("naidu flyover") ||
-            name.includes("g. d. naidu flyover") ||
-            name.includes("gd naidu flyover")
-        );
-    },
-
-    style: function(feature) {
-
-        return {
-            color: "#FF0000",
-            weight: 7,
-            opacity: 1
-        };
-
-    },
-
-    onEachFeature: function(feature, layer) {
-
-        layer.bindPopup(
-            "<b>G.D. Naidu Flyover</b><br>" +
-            "Actual mapped flyover segment"
-        );
-
-    }
-
-}).addTo(map);
-
-
-// Zoom to the complete actual flyover
-if (flyoverLayer.getBounds().isValid()) {
-
-    map.fitBounds(
-        flyoverLayer.getBounds(),
-        {
-            padding: [30, 30]
-        }
+    var map = L.map('map', {
+        zoomControl: true
+    }).setView(
+        [11.0045, 76.9616],
+        14
     );
 
-}
 
-      alert(
-        'G.D. Naidu Flyover GeoJSON could not be loaded.'
-      );
+    /* =========================================================
+       2. OPEN STREET MAP BASE MAP
+       ========================================================= */
 
-    });
-
-
-  // ==========================================
-  // 4. LOAD SURVEY LOCATIONS
-  // ==========================================
-
-  fetch('survey_locations.geojson')
-
-    .then(function(response) {
-
-      if (!response.ok) {
-        throw new Error(
-          'Could not load survey_locations.geojson'
-        );
-      }
-
-      return response.json();
-
-    })
-
-    .then(function(surveyData) {
-
-      var surveyLayer = L.geoJSON(
-        surveyData,
+    L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         {
+            maxZoom: 19,
 
-          // ------------------------------
-          // Survey point appearance
-          // ------------------------------
+            attribution:
+                '&copy; OpenStreetMap contributors'
+        }
+    ).addTo(map);
 
-          pointToLayer:
-            function(feature, latlng) {
 
-              var p =
-                feature.properties || {};
+    /* =========================================================
+       3. CREATE LAYER GROUPS
+       ========================================================= */
 
-              var city =
-                Number(
-                  p.total_vehicles_day_towards_city ||
-                  0
+    var flyoverLayerGroup = L.featureGroup();
+
+    var surveyLayerGroup = L.featureGroup();
+
+
+    /* =========================================================
+       4. LOAD G.D. NAIDU FLYOVER
+       ========================================================= */
+
+    fetch('gd_naidu_flyover.geojson')
+
+        .then(function(response) {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    'Could not load gd_naidu_flyover.geojson'
                 );
-
-              var goldwins =
-                Number(
-                  p.total_vehicles_day_towards_goldwins ||
-                  0
-                );
-
-              var total =
-                city + goldwins;
-
-              var radius = 9;
-
-              if (total >= 120000) {
-                radius = 16;
-              }
-              else if (total >= 80000) {
-                radius = 13;
-              }
-              else if (total >= 50000) {
-                radius = 10;
-              }
-
-              return L.circleMarker(
-                latlng,
-                {
-                  radius: radius,
-                  fillColor: '#FF6600',
-                  color: '#FFFFFF',
-                  weight: 2,
-                  opacity: 1,
-                  fillOpacity: 0.9
-                }
-              );
-
-            },
-
-
-          // ------------------------------
-          // Survey popup
-          // ------------------------------
-
-          onEachFeature:
-            function(feature, layer) {
-
-              var p =
-                feature.properties || {};
-
-              var popup =
-                '<div style="font-family:Arial;">' +
-
-                '<h3 style="margin:0 0 8px 0;">' +
-
-                (p.name || 'Survey Location') +
-
-                '</h3>' +
-
-                '<b>Traffic Survey Location</b>' +
-                '<br><br>';
-
-
-              // Towards City
-
-              if (
-                p.total_vehicles_day_towards_city
-              ) {
-
-                popup +=
-
-                  '<b>Towards City</b><br>' +
-
-                  'Total Vehicles/day: ' +
-
-                  Number(
-                    p.total_vehicles_day_towards_city
-                  ).toLocaleString() +
-
-                  '<br>' +
-
-                  'Flyover Vehicles/day: ' +
-
-                  Number(
-                    p.flyover_vehicles_day_towards_city
-                  ).toLocaleString() +
-
-                  '<br>' +
-
-                  'At-Grade Vehicles/day: ' +
-
-                  Number(
-                    p.at_grade_vehicles_day_towards_city
-                  ).toLocaleString() +
-
-                  '<br><br>';
-
-              }
-
-
-              // Towards Goldwins
-
-              if (
-                p.total_vehicles_day_towards_goldwins
-              ) {
-
-                popup +=
-
-                  '<b>Towards Goldwins</b><br>' +
-
-                  'Total Vehicles/day: ' +
-
-                  Number(
-                    p.total_vehicles_day_towards_goldwins
-                  ).toLocaleString() +
-
-                  '<br>' +
-
-                  'Flyover Vehicles/day: ' +
-
-                  Number(
-                    p.flyover_vehicles_day_towards_goldwins
-                  ).toLocaleString() +
-
-                  '<br>' +
-
-                  'At-Grade Vehicles/day: ' +
-
-                  Number(
-                    p.at_grade_vehicles_day_towards_goldwins
-                  ).toLocaleString() +
-
-                  '<br><br>';
-
-              }
-
-
-              popup +=
-                '</div>';
-
-              layer.bindPopup(popup);
-
-
-              // Permanent location label
-
-              layer.bindTooltip(
-                p.name || 'Survey Location',
-                {
-                  permanent: true,
-                  direction: 'top',
-                  offset: [0, -10]
-                }
-              );
 
             }
 
-        }
-      ).addTo(map);
+            return response.json();
 
-    })
+        })
 
-    .catch(function(error) {
+        .then(function(flyoverData) {
 
-      console.error(
-        'Survey location loading error:',
-        error
-      );
+            var flyoverLayer = L.geoJSON(
+                flyoverData,
+                {
 
-    });
+                    /* -------------------------
+                       FLYOVER LINE STYLE
+                       ------------------------- */
+
+                    style: {
+
+                        color: '#FF0000',
+
+                        weight: 8,
+
+                        opacity: 1
+
+                    },
 
 
-  // ==========================================
-  // 5. LEGEND
-  // ==========================================
-var legend = L.control({
-    position: 'bottomright'
-});
+                    /* -------------------------
+                       FLYOVER POPUP
+                       ------------------------- */
 
-legend.onAdd = function(map) {
+                    onEachFeature:
+                    function(feature, layer) {
 
-    var div = L.DomUtil.create(
-        'div',
-        'legend'
+                        layer.bindPopup(
+
+                            '<div style="font-family:Arial;">' +
+
+                            '<h3 style="margin:0 0 8px 0;">' +
+
+                            'G.D. Naidu Flyover' +
+
+                            '</h3>' +
+
+                            'Goldwins → Nava India → Uppilipalayam' +
+
+                            '</div>'
+
+                        );
+
+                    }
+
+                }
+
+            );
+
+            flyoverLayer.addTo(
+                flyoverLayerGroup
+            );
+
+            flyoverLayerGroup.addTo(map);
+
+
+            console.log(
+                'G.D. Naidu Flyover loaded successfully.'
+            );
+
+        })
+
+        .catch(function(error) {
+
+            console.error(
+                'Flyover GeoJSON error:',
+                error
+            );
+
+        });
+
+
+    /* =========================================================
+       5. LOAD TRAFFIC SURVEY LOCATIONS
+       ========================================================= */
+
+    fetch('survey_locations.geojson')
+
+        .then(function(response) {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    'Could not load survey_locations.geojson'
+                );
+
+            }
+
+            return response.json();
+
+        })
+
+        .then(function(surveyData) {
+
+
+            /* =================================================
+               CREATE SURVEY LAYER
+               ================================================= */
+
+            var surveyLayer = L.geoJSON(
+
+                surveyData,
+
+                {
+
+                    /* -----------------------------------------
+                       SURVEY POINT APPEARANCE
+                       ----------------------------------------- */
+
+                    pointToLayer:
+                    function(feature, latlng) {
+
+
+                        var p =
+                            feature.properties || {};
+
+
+                        var city =
+                            Number(
+                                p.total_vehicles_day_towards_city ||
+                                0
+                            );
+
+
+                        var goldwins =
+                            Number(
+                                p.total_vehicles_day_towards_goldwins ||
+                                0
+                            );
+
+
+                        var total =
+                            city + goldwins;
+
+
+                        /* -------------------------------------
+                           POINT SIZE BASED ON TOTAL TRAFFIC
+                           ------------------------------------- */
+
+                        var radius = 9;
+
+
+                        if (total >= 120000) {
+
+                            radius = 16;
+
+                        }
+
+                        else if (total >= 80000) {
+
+                            radius = 13;
+
+                        }
+
+                        else if (total >= 50000) {
+
+                            radius = 10;
+
+                        }
+
+
+                        return L.circleMarker(
+
+                            latlng,
+
+                            {
+
+                                radius: radius,
+
+                                fillColor: '#FF6600',
+
+                                color: '#FFFFFF',
+
+                                weight: 2,
+
+                                opacity: 1,
+
+                                fillOpacity: 0.9
+
+                            }
+
+                        );
+
+                    },
+
+
+                    /* -----------------------------------------
+                       SURVEY POPUP + LABEL
+                       ----------------------------------------- */
+
+                    onEachFeature:
+                    function(feature, layer) {
+
+
+                        var p =
+                            feature.properties || {};
+
+
+                        var popup =
+
+                            '<div class="survey-popup">' +
+
+
+                            '<h3>' +
+
+                            (
+                                p.name ||
+                                'Survey Location'
+                            ) +
+
+                            '</h3>' +
+
+
+                            '<b>Traffic Survey Location</b>' +
+
+                            '<br><br>';
+
+
+                        /* =====================================
+                           TOWARDS CITY
+                           ===================================== */
+
+                        if (
+                            p.total_vehicles_day_towards_city
+                        ) {
+
+
+                            popup +=
+
+                                '<b>Towards City</b><br>' +
+
+
+                                'Total Vehicles/day: ' +
+
+                                Number(
+
+                                    p.total_vehicles_day_towards_city
+
+                                ).toLocaleString() +
+
+                                '<br>' +
+
+
+                                'Flyover Vehicles/day: ' +
+
+                                Number(
+
+                                    p.flyover_vehicles_day_towards_city ||
+                                    0
+
+                                ).toLocaleString() +
+
+                                '<br>' +
+
+
+                                'At-Grade Vehicles/day: ' +
+
+                                Number(
+
+                                    p.at_grade_vehicles_day_towards_city ||
+                                    0
+
+                                ).toLocaleString() +
+
+                                '<br><br>';
+
+                        }
+
+
+                        /* =====================================
+                           TOWARDS GOLDWINS
+                           ===================================== */
+
+                        if (
+                            p.total_vehicles_day_towards_goldwins
+                        ) {
+
+
+                            popup +=
+
+                                '<b>Towards Goldwins</b><br>' +
+
+
+                                'Total Vehicles/day: ' +
+
+                                Number(
+
+                                    p.total_vehicles_day_towards_goldwins
+
+                                ).toLocaleString() +
+
+                                '<br>' +
+
+
+                                'Flyover Vehicles/day: ' +
+
+                                Number(
+
+                                    p.flyover_vehicles_day_towards_goldwins ||
+                                    0
+
+                                ).toLocaleString() +
+
+                                '<br>' +
+
+
+                                'At-Grade Vehicles/day: ' +
+
+                                Number(
+
+                                    p.at_grade_vehicles_day_towards_goldwins ||
+                                    0
+
+                                ).toLocaleString() +
+
+                                '<br>';
+
+                        }
+
+
+                        popup +=
+
+                            '</div>';
+
+
+                        /* -------------------------------------
+                           BIND POPUP
+                           ------------------------------------- */
+
+                        layer.bindPopup(
+                            popup
+                        );
+
+
+                        /* -------------------------------------
+                           PERMANENT LOCATION NAME
+                           ------------------------------------- */
+
+                        layer.bindTooltip(
+
+                            p.name ||
+                            'Survey Location',
+
+                            {
+
+                                permanent: true,
+
+                                direction: 'top',
+
+                                offset: [0, -12]
+
+                            }
+
+                        );
+
+                    }
+
+                }
+
+            );
+
+
+            surveyLayer.addTo(
+                surveyLayerGroup
+            );
+
+            surveyLayerGroup.addTo(map);
+
+
+            console.log(
+                'Survey locations loaded successfully.'
+            );
+
+
+            /* =================================================
+               ZOOM TO BOTH FLYOVER + SURVEY LOCATIONS
+               ================================================= */
+
+            setTimeout(function() {
+
+                var combinedBounds =
+                    L.latLngBounds([]);
+
+
+                if (
+                    flyoverLayerGroup.getBounds().isValid()
+                ) {
+
+                    combinedBounds.extend(
+                        flyoverLayerGroup.getBounds()
+                    );
+
+                }
+
+
+                if (
+                    surveyLayerGroup.getBounds().isValid()
+                ) {
+
+                    combinedBounds.extend(
+                        surveyLayerGroup.getBounds()
+                    );
+
+                }
+
+
+                if (
+                    combinedBounds.isValid()
+                ) {
+
+                    map.fitBounds(
+                        combinedBounds,
+                        {
+                            padding: [40, 40]
+                        }
+                    );
+
+                }
+
+            }, 500);
+
+        })
+
+        .catch(function(error) {
+
+            console.error(
+                'Survey location loading error:',
+                error
+            );
+
+        });
+
+
+    /* =========================================================
+       6. LEGEND
+       ========================================================= */
+
+    var legend =
+        L.control({
+
+            position: 'bottomright'
+
+        });
+
+
+    legend.onAdd =
+    function(map) {
+
+
+        var div =
+            L.DomUtil.create(
+                'div',
+                'legend'
+            );
+
+
+        /* -----------------------------------------
+           TITLE
+           ----------------------------------------- */
+
+        div.innerHTML =
+
+            '<div class="legend-title">' +
+
+            'G.D. Naidu Flyover Study Map' +
+
+            '</div>';
+
+
+        /* -----------------------------------------
+           FLYOVER
+           ----------------------------------------- */
+
+        div.innerHTML +=
+
+            '<div class="legend-row">' +
+
+            '<span class="legend-line" ' +
+
+            'style="background:#FF0000;">' +
+
+            '</span>' +
+
+            'G.D. Naidu Flyover' +
+
+            '</div>';
+
+
+        /* -----------------------------------------
+           SURVEY LOCATION
+           ----------------------------------------- */
+
+        div.innerHTML +=
+
+            '<div class="legend-row">' +
+
+            '<span class="legend-circle" ' +
+
+            'style="background:#FF6600;">' +
+
+            '</span>' +
+
+            'Traffic Survey Location' +
+
+            '</div>';
+
+
+        return div;
+
+    };
+
+
+    /* -----------------------------------------
+       ADD LEGEND TO MAP
+       ----------------------------------------- */
+
+    legend.addTo(map);
+
+
+    /* =========================================================
+       7. CONSOLE MESSAGE
+       ========================================================= */
+
+    console.log(
+        'G.D. Naidu Flyover Spatial Mapping initialized.'
     );
-
-    div.innerHTML +=
-        '<b>G.D. Naidu Flyover Study Map</b><br>';
-
-    div.innerHTML +=
-        '<i class="line" ' +
-        'style="background:#FF0000"></i>' +
-        ' G.D. Naidu Flyover<br>';
-
-    div.innerHTML +=
-        '<i style="' +
-        'background:#FF6600;' +
-        'border:1px solid #000">' +
-        '</i>' +
-        ' Traffic Survey Location<br>';
-
-    return div;
-};
-
-legend.addTo(map);
 
 </script>
 
+
 </body>
+
 </html>
