@@ -97,150 +97,41 @@ fetch('gd_naidu_flyover.geojson')
   });
 
 
-// 4. Load Survey Locations
-fetch('survey_locations.geojson')
-  .then(response => response.json())
-  .then(surveyData => {
-
-    var surveyLayer = L.geoJSON(surveyData, {
-
-      pointToLayer: function(feature, latlng) {
-
-        var p = feature.properties || {};
-
-        var totalCity =
-          Number(p.total_vehicles_day_towards_city || 0);
-
-        var totalGoldwins =
-          Number(p.total_vehicles_day_towards_goldwins || 0);
-
-        var totalTraffic =
-          totalCity + totalGoldwins;
-
-        var radius = 9;
-
-        if (totalTraffic >= 120000) {
-          radius = 16;
-        } else if (totalTraffic >= 80000) {
-          radius = 13;
-        } else if (totalTraffic >= 50000) {
-          radius = 10;
+// 4. Load ONLY the G.D. Naidu Flyover GeoJSON
+fetch('gd_naidu_flyover.geojson')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Could not load gd_naidu_flyover.geojson');
         }
+        return response.json();
+    })
+    .then(flyoverData => {
 
-        return L.circleMarker(latlng, {
-          radius: radius,
-          fillColor: "#FF6600",
-          color: "#FFFFFF",
-          weight: 2,
-          opacity: 1,
-          fillOpacity: 0.9
-        });
-      },
+        var flyoverLayer = L.geoJSON(flyoverData, {
+            style: {
+                color: '#FF0000',
+                weight: 7,
+                opacity: 1
+            },
 
-      onEachFeature: function(feature, layer) {
+            onEachFeature: function(feature, layer) {
+                layer.bindPopup(
+                    '<b>G.D. Naidu Flyover</b><br>' +
+                    'Goldwins → Nava India → Uppilipalayam'
+                );
+            }
+        }).addTo(map);
 
-        var p = feature.properties || {};
-
-        var popup =
-          "<div style='font-family:Arial;'>" +
-          "<h3 style='margin:0 0 8px 0;'>" +
-          p.name +
-          "</h3>" +
-          "<b>Traffic Survey Location</b><br><br>";
-
-        if (p.total_vehicles_day_towards_city) {
-
-          popup +=
-            "<b>Towards City</b><br>" +
-            "Total Vehicles/day: " +
-            Number(
-              p.total_vehicles_day_towards_city
-            ).toLocaleString() +
-            "<br>" +
-
-            "Flyover Vehicles/day: " +
-            Number(
-              p.flyover_vehicles_day_towards_city
-            ).toLocaleString() +
-            "<br>" +
-
-            "At-Grade Vehicles/day: " +
-            Number(
-              p.at_grade_vehicles_day_towards_city
-            ).toLocaleString() +
-            "<br><br>";
+        // Automatically zoom to the complete flyover
+        if (flyoverLayer.getBounds().isValid()) {
+            map.fitBounds(flyoverLayer.getBounds(), {
+                padding: [30, 30]
+            });
         }
-
-        if (p.total_vehicles_day_towards_goldwins) {
-
-          popup +=
-            "<b>Towards Goldwins</b><br>" +
-            "Total Vehicles/day: " +
-            Number(
-              p.total_vehicles_day_towards_goldwins
-            ).toLocaleString() +
-            "<br>" +
-
-            "Flyover Vehicles/day: " +
-            Number(
-              p.flyover_vehicles_day_towards_goldwins
-            ).toLocaleString() +
-            "<br>" +
-
-            "At-Grade Vehicles/day: " +
-            Number(
-              p.at_grade_vehicles_day_towards_goldwins
-            ).toLocaleString() +
-            "<br><br>";
-        }
-
-        popup += "</div>";
-
-        layer.bindPopup(popup);
-
-        // Location label
-        layer.bindTooltip(
-          p.name,
-          {
-            permanent: true,
-            direction: "top",
-            offset: [0, -10]
-          }
-        );
-      }
-
-    }).addTo(map);
-
-  })
-  .catch(error => {
-    console.error(
-      "Error loading survey locations:",
-      error
-    );
-  });
-    // Add labels for the three survey locations
-    surveyLayer.eachLayer(function(layer) {
-
-      var name = layer.feature.properties.name;
-
-      layer.bindTooltip(name, {
-        permanent: true,
-        direction: 'top',
-        offset: [0, -10]
-      });
-
+    })
+    .catch(error => {
+        console.error('Flyover GeoJSON error:', error);
     });
-
-  })
-  .catch(error => {
-    console.error("Error loading survey GeoJSON:", error);
-  });
-
-  // 5. Automatically focus camera bounds on vector data
-  if (surveyLayer.getBounds().isValid()) {
-    map.fitBounds(surveyLayer.getBounds());
-}
-
   // 6. Map Legend
   var legend = L.control({position: 'bottomright'});
   legend.onAdd = function (map) {
