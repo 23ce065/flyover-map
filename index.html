@@ -9,7 +9,6 @@
 
   <title>G.D. Naidu Flyover Spatial Mapping</title>
 
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="leaflet.css">
 
   <style>
@@ -39,11 +38,8 @@
       font-size: 13px;
       line-height: 22px;
       color: #222;
-
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
-
       border-radius: 6px;
-
       min-width: 190px;
     }
 
@@ -88,546 +84,438 @@
       border: 1px solid #555;
       border-radius: 4px;
       padding: 3px 6px;
-
       font-family: Arial, sans-serif;
       font-size: 12px;
       font-weight: bold;
-
       color: #222;
-
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
     }
 
-    /* Remove Leaflet default tooltip arrow */
     .survey-label::before {
       display: none;
-    }
-
-    /* Error box */
-    .error-box {
-      background: white;
-      padding: 10px;
-      color: red;
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      border-radius: 5px;
     }
 
   </style>
 
 </head>
 
-
 <body>
 
-  <div id="map"></div>
+<div id="map"></div>
+
+<script src="leaflet.js"></script>
+
+<script>
+
+  /* =====================================================
+     1. INITIALIZE MAP
+     ===================================================== */
+
+  var map = L.map("map").setView(
+    [11.0208, 76.9934],
+    13
+  );
 
 
-  <!-- Leaflet JavaScript -->
-  <script src="leaflet.js"></script>
+  /* =====================================================
+     2. OPEN STREET MAP
+     ===================================================== */
+
+  L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap contributors"
+    }
+  ).addTo(map);
 
 
-  <script>
+  /* =====================================================
+     3. CREATE LAYERS
+     ===================================================== */
 
-    /* =====================================================
-       1. INITIALIZE MAP
-       ===================================================== */
-
-    var map = L.map("map").setView(
-      [11.020, 77.005],
-      13
-    );
+  var flyoverLayer = null;
+  var surveyLayer = null;
 
 
-    /* =====================================================
-       2. OPEN STREET MAP
-       ===================================================== */
+  /* =====================================================
+     4. LOAD G.D. NAIDU FLYOVER
+     ===================================================== */
 
-    L.tileLayer(
-      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      {
-        maxZoom: 19,
+  fetch("gd_naidu_flyover.geojson")
 
-        attribution:
-          "&copy; OpenStreetMap contributors"
+    .then(function(response) {
+
+      if (!response.ok) {
+        throw new Error(
+          "Could not load gd_naidu_flyover.geojson"
+        );
       }
-    ).addTo(map);
 
+      return response.json();
 
-    /* =====================================================
-       3. CREATE LAYERS
-       ===================================================== */
+    })
 
-    var flyoverLayer = null;
+    .then(function(flyoverData) {
 
-    var surveyLayer = null;
+      console.log(
+        "Flyover GeoJSON loaded successfully"
+      );
 
+      flyoverLayer = L.geoJSON(
+        flyoverData,
+        {
 
-    /* =====================================================
-       4. LOAD G.D. NAIDU FLYOVER
-       ===================================================== */
+          style: function(feature) {
 
-    fetch("gd_naidu_flyover.geojson")
+            return {
+              color: "#FF0000",
+              weight: 8,
+              opacity: 1
+            };
 
-      .then(function(response) {
+          },
 
-        if (!response.ok) {
+          onEachFeature: function(feature, layer) {
 
-          throw new Error(
-            "Could not load gd_naidu_flyover.geojson"
-          );
+            layer.bindPopup(
 
-        }
+              "<div style='font-family:Arial;'>" +
 
-        return response.json();
+              "<h3 style='margin:0 0 8px 0;'>" +
+              "G.D. Naidu Flyover" +
+              "</h3>" +
 
-      })
+              "<b>Study Corridor:</b><br>" +
+              "Goldwins → Nava India → Uppilipalayam" +
 
-      .then(function(flyoverData) {
+              "</div>"
 
-        console.log(
-          "Flyover GeoJSON loaded successfully"
-        );
-
-
-        flyoverLayer = L.geoJSON(
-          flyoverData,
-          {
-
-            /* -------------------------
-               FLYOVER LINE STYLE
-               ------------------------- */
-
-            style: function(feature) {
-
-              return {
-
-                color: "#FF0000",
-
-                weight: 8,
-
-                opacity: 1
-
-              };
-
-            },
-
-
-            /* -------------------------
-               FLYOVER POPUP
-               ------------------------- */
-
-            onEachFeature:
-              function(feature, layer) {
-
-                layer.bindPopup(
-
-                  "<div style='font-family:Arial;'>" +
-
-                  "<h3 style='margin:0 0 8px 0;'>" +
-
-                  "G.D. Naidu Flyover" +
-
-                  "</h3>" +
-
-                  "<b>Corridor:</b><br>" +
-
-                  "Goldwins → Nava India → Uppilipalayam" +
-
-                  "</div>"
-
-                );
-
-              }
+            );
 
           }
 
-        ).addTo(map);
+        }
+
+      ).addTo(map);
+
+    })
+
+    .catch(function(error) {
+
+      console.error(
+        "Flyover loading error:",
+        error
+      );
+
+    });
 
 
-        /* =================================================
-           ZOOM TO COMPLETE FLYOVER
-           ================================================= */
+  /* =====================================================
+     5. LOAD SURVEY LOCATIONS
+     ===================================================== */
 
-        if (
-          flyoverLayer.getBounds().isValid()
-        ) {
+  fetch("survey_locations.geojson")
 
-          map.fitBounds(
-            flyoverLayer.getBounds(),
-            {
-              padding: [50, 50]
+    .then(function(response) {
+
+      if (!response.ok) {
+
+        throw new Error(
+          "Could not load survey_locations.geojson"
+        );
+
+      }
+
+      return response.json();
+
+    })
+
+    .then(function(surveyData) {
+
+      console.log(
+        "Survey GeoJSON loaded successfully"
+      );
+
+      surveyLayer = L.geoJSON(
+        surveyData,
+        {
+
+          /* =================================================
+             SURVEY POINT SYMBOL
+             ================================================= */
+
+          pointToLayer: function(feature, latlng) {
+
+            var p =
+              feature.properties || {};
+
+            var cityTraffic =
+              Number(
+                p.total_vehicles_day_towards_city || 0
+              );
+
+            var goldwinsTraffic =
+              Number(
+                p.total_vehicles_day_towards_goldwins || 0
+              );
+
+            var totalTraffic =
+              cityTraffic +
+              goldwinsTraffic;
+
+            var radius = 9;
+
+            if (totalTraffic >= 120000) {
+              radius = 17;
             }
-          );
 
-        }
+            else if (totalTraffic >= 80000) {
+              radius = 14;
+            }
 
-      })
+            else if (totalTraffic >= 50000) {
+              radius = 11;
+            }
 
-      .catch(function(error) {
+            return L.circleMarker(
+              latlng,
+              {
 
-        console.error(
-          "Flyover loading error:",
-          error
-        );
+                radius: radius,
 
-      });
+                fillColor: "#FF6600",
 
+                color: "#FFFFFF",
 
+                weight: 3,
 
-    /* =====================================================
-       5. LOAD SURVEY LOCATIONS
-       ===================================================== */
+                opacity: 1,
 
-    fetch("survey_locations.geojson")
+                fillOpacity: 0.95
 
-      .then(function(response) {
+              }
+            );
 
-        if (!response.ok) {
+          },
 
-          throw new Error(
-            "Could not load survey_locations.geojson"
-          );
 
-        }
+          /* =================================================
+             POPUP + LABEL
+             ================================================= */
 
-        return response.json();
+          onEachFeature: function(feature, layer) {
 
-      })
+            var p =
+              feature.properties || {};
 
-      .then(function(surveyData) {
+            var popup =
 
-        console.log(
-          "Survey GeoJSON loaded successfully"
-        );
+              "<div style='font-family:Arial;'>" +
 
+              "<h3 style='margin:0 0 8px 0;'>" +
 
-        surveyLayer = L.geoJSON(
-          surveyData,
-          {
+              (p.name || "Survey Location") +
 
-            /* =================================================
-               SURVEY POINT SYMBOL
-               ================================================= */
+              "</h3>" +
 
-            pointToLayer:
-              function(feature, latlng) {
+              "<b>Traffic Survey Location</b>" +
 
-                var p =
-                  feature.properties || {};
+              "<br><br>";
 
 
-                var cityTraffic =
-                  Number(
-                    p.total_vehicles_day_towards_city || 0
-                  );
+            /* TOWARDS CITY */
 
+            if (
+              p.total_vehicles_day_towards_city !== undefined
+            ) {
 
-                var goldwinsTraffic =
-                  Number(
-                    p.total_vehicles_day_towards_goldwins || 0
-                  );
+              popup +=
 
+                "<b>Towards City</b><br>" +
 
-                var totalTraffic =
-                  cityTraffic +
-                  goldwinsTraffic;
+                "Total Vehicles/day: " +
 
+                Number(
+                  p.total_vehicles_day_towards_city
+                ).toLocaleString() +
 
-                /* Default size */
+                "<br>" +
 
-                var radius = 9;
+                "Flyover Vehicles/day: " +
 
+                Number(
+                  p.flyover_vehicles_day_towards_city || 0
+                ).toLocaleString() +
 
-                /* Bigger symbol for higher traffic */
+                "<br>" +
 
-                if (totalTraffic >= 120000) {
+                "At-Grade Vehicles/day: " +
 
-                  radius = 17;
+                Number(
+                  p.at_grade_vehicles_day_towards_city || 0
+                ).toLocaleString() +
 
-                }
+                "<br><br>";
 
-                else if (totalTraffic >= 80000) {
+            }
 
-                  radius = 14;
 
-                }
+            /* TOWARDS GOLDWINS */
 
-                else if (totalTraffic >= 50000) {
+            if (
+              p.total_vehicles_day_towards_goldwins !== undefined
+            ) {
 
-                  radius = 11;
+              popup +=
 
-                }
+                "<b>Towards Goldwins</b><br>" +
 
+                "Total Vehicles/day: " +
 
-                return L.circleMarker(
-                  latlng,
-                  {
+                Number(
+                  p.total_vehicles_day_towards_goldwins
+                ).toLocaleString() +
 
-                    radius: radius,
+                "<br>" +
 
-                    fillColor: "#FF6600",
+                "Flyover Vehicles/day: " +
 
-                    color: "#FFFFFF",
+                Number(
+                  p.flyover_vehicles_day_towards_goldwins || 0
+                ).toLocaleString() +
 
-                    weight: 3,
+                "<br>" +
 
-                    opacity: 1,
+                "At-Grade Vehicles/day: " +
 
-                    fillOpacity: 0.95
+                Number(
+                  p.at_grade_vehicles_day_towards_goldwins || 0
+                ).toLocaleString() +
 
-                  }
-                );
+                "<br><br>";
 
-              },
+            }
 
 
-            /* =================================================
-               SURVEY POPUP + LABEL
-               ================================================= */
+            popup += "</div>";
 
-            onEachFeature:
-              function(feature, layer) {
+            layer.bindPopup(popup);
 
-                var p =
-                  feature.properties || {};
 
+            /* PERMANENT LOCATION NAME */
 
-                var popup =
+            layer.bindTooltip(
 
-                  "<div style='font-family:Arial;'>" +
+              p.name || "Survey Location",
 
-                  "<h3 style='margin:0 0 8px 0;'>" +
+              {
 
-                  (p.name || "Survey Location") +
+                permanent: true,
 
-                  "</h3>" +
+                direction: "top",
 
-                  "<b>Traffic Survey Location</b>" +
+                offset: [0, -12],
 
-                  "<br><br>";
-
-
-                /* -----------------------------
-                   TOWARDS CITY
-                   ----------------------------- */
-
-                if (
-                  p.total_vehicles_day_towards_city !== undefined
-                ) {
-
-                  popup +=
-
-                    "<b>Towards City</b><br>" +
-
-                    "Total Vehicles/day: " +
-
-                    Number(
-                      p.total_vehicles_day_towards_city
-                    ).toLocaleString() +
-
-                    "<br>" +
-
-                    "Flyover Vehicles/day: " +
-
-                    Number(
-                      p.flyover_vehicles_day_towards_city || 0
-                    ).toLocaleString() +
-
-                    "<br>" +
-
-                    "At-Grade Vehicles/day: " +
-
-                    Number(
-                      p.at_grade_vehicles_day_towards_city || 0
-                    ).toLocaleString() +
-
-                    "<br><br>";
-
-                }
-
-
-                /* -----------------------------
-                   TOWARDS GOLDWINS
-                   ----------------------------- */
-
-                if (
-                  p.total_vehicles_day_towards_goldwins !== undefined
-                ) {
-
-                  popup +=
-
-                    "<b>Towards Goldwins</b><br>" +
-
-                    "Total Vehicles/day: " +
-
-                    Number(
-                      p.total_vehicles_day_towards_goldwins
-                    ).toLocaleString() +
-
-                    "<br>" +
-
-                    "Flyover Vehicles/day: " +
-
-                    Number(
-                      p.flyover_vehicles_day_towards_goldwins || 0
-                    ).toLocaleString() +
-
-                    "<br>" +
-
-                    "At-Grade Vehicles/day: " +
-
-                    Number(
-                      p.at_grade_vehicles_day_towards_goldwins || 0
-                    ).toLocaleString() +
-
-                    "<br><br>";
-
-                }
-
-
-                popup += "</div>";
-
-
-                /* Bind popup */
-
-                layer.bindPopup(popup);
-
-
-                /* =================================================
-                   PERMANENT LOCATION NAME
-                   ================================================= */
-
-                layer.bindTooltip(
-
-                  p.name || "Survey Location",
-
-                  {
-
-                    permanent: true,
-
-                    direction: "top",
-
-                    offset: [0, -12],
-
-                    className: "survey-label"
-
-                  }
-
-                );
+                className: "survey-label"
 
               }
 
+            );
+
           }
-
-        ).addTo(map);
-
-
-        /* =================================================
-           SHOW ALL SURVEY LOCATIONS
-           ================================================= */
-
-        if (
-          surveyLayer.getBounds().isValid()
-        ) {
-
-          map.fitBounds(
-            surveyLayer.getBounds(),
-            {
-              padding: [80, 80]
-            }
-          );
 
         }
 
-      })
+      ).addTo(map);
 
-      .catch(function(error) {
 
-        console.error(
-          "Survey loading error:",
-          error
+      /* =================================================
+         KEEP MAP CENTERED ON STUDY AREA
+         ================================================= */
+
+      map.setView(
+        [11.0208, 76.9934],
+        13
+      );
+
+    })
+
+    .catch(function(error) {
+
+      console.error(
+        "Survey loading error:",
+        error
+      );
+
+    });
+
+
+  /* =====================================================
+     6. LEGEND
+     ===================================================== */
+
+  var legend =
+    L.control({
+      position: "bottomright"
+    });
+
+
+  legend.onAdd =
+    function(map) {
+
+      var div =
+        L.DomUtil.create(
+          "div",
+          "legend"
         );
 
-      });
+      div.innerHTML =
+
+        "<div class='legend-title'>" +
+        "G.D. Naidu Flyover Study Map" +
+        "</div>" +
+
+        "<div class='legend-row'>" +
+
+        "<span class='legend-line-red'></span>" +
+
+        "<span>G.D. Naidu Flyover</span>" +
+
+        "</div>" +
+
+        "<div class='legend-row'>" +
+
+        "<span class='legend-circle-orange'></span>" +
+
+        "<span>Traffic Survey Location</span>" +
+
+        "</div>";
+
+      return div;
+
+    };
 
 
-
-    /* =====================================================
-       6. LEGEND
-       ===================================================== */
-
-    var legend =
-      L.control({
-        position: "bottomright"
-      });
+  legend.addTo(map);
 
 
-    legend.onAdd =
-      function(map) {
+  /* =====================================================
+     7. MAP SIZE
+     ===================================================== */
 
-        var div =
-          L.DomUtil.create(
-            "div",
-            "legend"
-          );
+  setTimeout(function() {
 
+    map.invalidateSize();
 
-        div.innerHTML =
-
-          "<div class='legend-title'>" +
-
-          "G.D. Naidu Flyover Study Map" +
-
-          "</div>" +
+  }, 500);
 
 
-          "<div class='legend-row'>" +
+  console.log(
+    "G.D. Naidu Flyover Spatial Map initialized."
+  );
 
-          "<span class='legend-line-red'></span>" +
-
-          "<span>G.D. Naidu Flyover</span>" +
-
-          "</div>" +
-
-
-          "<div class='legend-row'>" +
-
-          "<span class='legend-circle-orange'></span>" +
-
-          "<span>Traffic Survey Location</span>" +
-
-          "</div>";
-
-
-        return div;
-
-      };
-
-
-    legend.addTo(map);
-
-
-    /* =====================================================
-       7. KEEP MAP CORRECTLY SIZED
-       ===================================================== */
-
-    setTimeout(function() {
-
-      map.invalidateSize();
-
-    }, 500);
-
-
-    /* =====================================================
-       8. DEBUG MESSAGE
-       ===================================================== */
-
-    console.log(
-      "G.D. Naidu Flyover Spatial Map initialized."
-    );
-
-  </script>
+</script>
 
 </body>
 
