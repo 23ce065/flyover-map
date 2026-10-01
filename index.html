@@ -25,6 +25,10 @@ html, body {
     background: #e5e3df;
 }
 
+/* ================================
+   LEGEND
+   ================================ */
+
 .legend {
     background: white;
     padding: 12px 14px;
@@ -67,6 +71,10 @@ html, body {
     margin-right: 8px;
 }
 
+/* ================================
+   SURVEY LABEL
+   ================================ */
+
 .survey-label {
     background: white;
     border: 1px solid #555;
@@ -83,9 +91,56 @@ html, body {
     display: none;
 }
 
+/* ================================
+   SIGNAL MARKER
+   ================================ */
+
+.signal-marker {
+    width: 30px;
+    height: 30px;
+    background: #d71920;
+    border: 3px solid white;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+
+    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+
+/* ================================
+   U-TURN MARKER
+   ================================ */
+
+.uturn-marker {
+    width: 30px;
+    height: 30px;
+    background: #1565c0;
+    border: 3px solid white;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+
+    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+
 </style>
 
 </head>
+
 
 <body>
 
@@ -119,12 +174,10 @@ L.tileLayer(
 
 
 /* =========================================================
-   3. G.D. NAIDU FLYOVER / STUDY CORRIDOR
+   3. G.D. NAIDU FLYOVER
    ========================================================= */
 
 var flyoverCoordinates = [
-
-    /* Uppilipalayam side */
 
     [11.0024033, 76.9667998],
     [11.0026188, 76.9678953],
@@ -160,8 +213,6 @@ var flyoverCoordinates = [
     [11.0110998, 76.9830518],
     [11.0116305, 76.9840206],
     [11.0116852, 76.9841164],
-
-    /* Nava India area */
 
     [11.0122932, 76.9851796],
     [11.0125527, 76.9855550],
@@ -257,8 +308,6 @@ var flyoverCoordinates = [
     [11.0257991, 77.0173667],
     [11.0258366, 77.0175840],
 
-    /* Goldwins side */
-
     [11.0267837, 77.0215362],
     [11.0269044, 77.0218028],
     [11.0269730, 77.0219655],
@@ -322,7 +371,7 @@ var flyoverCoordinates = [
 
 
 /* =========================================================
-   4. DRAW RED FLYOVER LINE
+   4. FLYOVER LINE
    ========================================================= */
 
 var flyover = L.polyline(
@@ -336,11 +385,6 @@ var flyover = L.polyline(
     }
 ).addTo(map);
 
-
-/* =========================================================
-   5. FLYOVER POPUP
-   ========================================================= */
-
 flyover.bindPopup(
     "<b>G.D. Naidu Flyover</b><br><br>" +
     "Avinashi Road Corridor<br>" +
@@ -349,7 +393,7 @@ flyover.bindPopup(
 
 
 /* =========================================================
-   6. SURVEY LOCATIONS + TRAFFIC DATA
+   5. SURVEY LOCATIONS
    ========================================================= */
 
 var surveyLocations = [
@@ -400,7 +444,7 @@ var surveyLocations = [
 
 
 /* =========================================================
-   7. ORANGE SURVEY MARKERS
+   6. SURVEY MARKERS
    ========================================================= */
 
 surveyLocations.forEach(function(location) {
@@ -417,7 +461,6 @@ surveyLocations.forEach(function(location) {
         }
     ).addTo(map);
 
-
     marker.bindTooltip(
         location.name,
         {
@@ -427,7 +470,6 @@ surveyLocations.forEach(function(location) {
             className: "survey-label"
         }
     );
-
 
     marker.bindPopup(
 
@@ -469,87 +511,86 @@ surveyLocations.forEach(function(location) {
 
 
 /* =========================================================
-   8. TRAFFIC SIGNALS
+   7. TRAFFIC SIGNAL LOCATIONS
    ========================================================= */
 
 /*
-   IMPORTANT:
-   These are reference locations for the study map.
-   Verify exact signal status and coordinates in the
-   field before using them as confirmed existing signals.
+   REFERENCE LOCATIONS.
+   Verify exact location/status during field survey.
 */
 
 var trafficSignals = [
 
     {
         name: "Uppilipalayam Junction",
-        lat: 11.002861,
-        lng: 76.969722
+        lat: 11.004000,
+        lng: 76.970800
     },
 
     {
         name: "Nava India Junction",
-        lat: 11.020806,
-        lng: 76.993389
+        lat: 11.021700,
+        lng: 76.994700
     },
 
     {
         name: "Hope College Junction",
-        lat: 11.025500,
+        lat: 11.025900,
         lng: 77.014600
     },
 
     {
         name: "Pioneer Mill Junction",
-        lat: 11.026800,
-        lng: 77.021500
+        lat: 11.027500,
+        lng: 77.022800
     },
 
     {
         name: "Goldwins Junction",
-        lat: 11.043222,
-        lng: 77.045083
+        lat: 11.042500,
+        lng: 77.044300
     }
 
 ];
 
 
+/* =========================================================
+   8. DRAW SIGNALS
+   ========================================================= */
+
 trafficSignals.forEach(function(signal) {
 
     var signalIcon = L.divIcon({
 
-        className: "signal-icon",
+        className: "",
 
         html:
-            "<div style=\"" +
-            "width:28px;" +
-            "height:28px;" +
-            "background:#d71920;" +
-            "border:3px solid white;" +
-            "border-radius:50%;" +
-            "box-shadow:0 2px 6px rgba(0,0,0,0.5);" +
-            "display:flex;" +
-            "align-items:center;" +
-            "justify-content:center;" +
-            "font-size:17px;" +
-            "\">🚦</div>",
+            '<div class="signal-marker">S</div>',
 
-        iconSize: [34, 34],
-        iconAnchor: [17, 17],
-        popupAnchor: [0, -17]
+        iconSize: [36, 36],
+
+        iconAnchor: [18, 18],
+
+        popupAnchor: [0, -18]
 
     });
 
 
-    var signalMarker = L.marker(
+    var marker = L.marker(
         [signal.lat, signal.lng],
         {
-            icon: signalIcon
+            icon: signalIcon,
+
+            /*
+             * Keeps signal marker above
+             * the flyover line and survey marker.
+             */
+            zIndexOffset: 1000
         }
     ).addTo(map);
 
 
-    signalMarker.bindPopup(
+    marker.bindPopup(
 
         "<b>TRAFFIC SIGNAL</b><br><br>" +
 
@@ -558,6 +599,7 @@ trafficSignals.forEach(function(signal) {
         "</b><br><br>" +
 
         "G.D. Naidu Flyover Corridor<br>" +
+
         "Avinashi Road"
 
     );
@@ -570,84 +612,78 @@ trafficSignals.forEach(function(signal) {
    ========================================================= */
 
 /*
-   These are reference points.
-   Verify exact U-turn position and current operational status
-   during field survey.
+   REFERENCE LOCATIONS.
+   Verify exact location/status during field survey.
 */
 
 var uTurnLocations = [
 
     {
         name: "U-Turn near Uppilipalayam",
-        lat: 11.003200,
-        lng: 76.970600
+        lat: 11.004600,
+        lng: 76.972000
     },
 
     {
         name: "U-Turn near Nava India",
-        lat: 11.020200,
-        lng: 76.994800
+        lat: 11.020500,
+        lng: 76.995500
     },
 
     {
         name: "U-Turn near Hope College",
-        lat: 11.025200,
-        lng: 77.015800
+        lat: 11.024900,
+        lng: 77.016500
     },
 
     {
         name: "U-Turn near Pioneer Mill",
-        lat: 11.027200,
-        lng: 77.023000
+        lat: 11.028200,
+        lng: 77.024000
     },
 
     {
         name: "U-Turn near Goldwins",
-        lat: 11.042800,
-        lng: 77.044700
+        lat: 11.041900,
+        lng: 77.043700
     }
 
 ];
 
 
+/* =========================================================
+   10. DRAW U-TURNS
+   ========================================================= */
+
 uTurnLocations.forEach(function(uTurn) {
 
     var uTurnIcon = L.divIcon({
 
-        className: "uturn-icon",
+        className: "",
 
         html:
-            "<div style=\"" +
-            "width:28px;" +
-            "height:28px;" +
-            "background:#1565c0;" +
-            "border:3px solid white;" +
-            "border-radius:50%;" +
-            "box-shadow:0 2px 6px rgba(0,0,0,0.5);" +
-            "display:flex;" +
-            "align-items:center;" +
-            "justify-content:center;" +
-            "font-size:20px;" +
-            "font-weight:bold;" +
-            "color:white;" +
-            "\">↩</div>",
+            '<div class="uturn-marker">U</div>',
 
-        iconSize: [34, 34],
-        iconAnchor: [17, 17],
-        popupAnchor: [0, -17]
+        iconSize: [36, 36],
+
+        iconAnchor: [18, 18],
+
+        popupAnchor: [0, -18]
 
     });
 
 
-    var uTurnMarker = L.marker(
+    var marker = L.marker(
         [uTurn.lat, uTurn.lng],
         {
-            icon: uTurnIcon
+            icon: uTurnIcon,
+
+            zIndexOffset: 1100
         }
     ).addTo(map);
 
 
-    uTurnMarker.bindPopup(
+    marker.bindPopup(
 
         "<b>U-TURN LOCATION</b><br><br>" +
 
@@ -656,6 +692,7 @@ uTurnLocations.forEach(function(uTurn) {
         "</b><br><br>" +
 
         "G.D. Naidu Flyover Corridor<br>" +
+
         "Avinashi Road"
 
     );
@@ -664,122 +701,7 @@ uTurnLocations.forEach(function(uTurn) {
 
 
 /* =========================================================
-   10. TRAFFIC CONTROL LEGEND
-   ========================================================= */
-
-var controlLegend = L.control({
-    position: "topright"
-});
-
-
-controlLegend.onAdd = function() {
-
-    var div = L.DomUtil.create(
-        "div",
-        "legend"
-    );
-
-
-    div.innerHTML =
-
-        "<div class='legend-title'>" +
-        "Traffic Control Points" +
-        "</div>" +
-
-        "<div class='legend-row'>" +
-
-        "<span style='" +
-        "font-size:20px;" +
-        "margin-right:8px;" +
-        "'>🚦</span>" +
-
-        "<span>Traffic Signal</span>" +
-
-        "</div>" +
-
-        "<div class='legend-row'>" +
-
-        "<span style='" +
-        "display:inline-flex;" +
-        "width:24px;" +
-        "height:24px;" +
-        "background:#1565c0;" +
-        "color:white;" +
-        "border-radius:50%;" +
-        "align-items:center;" +
-        "justify-content:center;" +
-        "font-size:18px;" +
-        "font-weight:bold;" +
-        "margin-right:8px;" +
-        "'>↩</span>" +
-
-        "<span>U-Turn</span>" +
-
-        "</div>";
-
-
-    return div;
-
-};
-
-
-controlLegend.addTo(map);
-
-
-/* =========================================================
-   11. FIT MAP TO ALL FEATURES
-   ========================================================= */
-
-var allPoints = [];
-
-
-flyoverCoordinates.forEach(function(point) {
-
-    allPoints.push(point);
-
-});
-
-
-surveyLocations.forEach(function(location) {
-
-    allPoints.push([
-        location.lat,
-        location.lng
-    ]);
-
-});
-
-
-trafficSignals.forEach(function(signal) {
-
-    allPoints.push([
-        signal.lat,
-        signal.lng
-    ]);
-
-});
-
-
-uTurnLocations.forEach(function(uTurn) {
-
-    allPoints.push([
-        uTurn.lat,
-        uTurn.lng
-    ]);
-
-});
-
-
-map.fitBounds(
-    L.latLngBounds(allPoints),
-    {
-        padding: [50, 50]
-    }
-);
-
-
-/* =========================================================
-   12. MAIN LEGEND
+   11. MAP LEGEND
    ========================================================= */
 
 var legend = L.control({
@@ -801,6 +723,7 @@ legend.onAdd = function() {
         "G.D. Naidu Flyover Study Map" +
         "</div>" +
 
+
         "<div class='legend-row'>" +
 
         "<span class='red-line'></span>" +
@@ -808,6 +731,7 @@ legend.onAdd = function() {
         "<span>G.D. Naidu Flyover</span>" +
 
         "</div>" +
+
 
         "<div class='legend-row'>" +
 
@@ -817,32 +741,31 @@ legend.onAdd = function() {
 
         "</div>" +
 
+
         "<div class='legend-row'>" +
 
-        "<span style='" +
-        "font-size:18px;" +
-        "margin-right:8px;" +
-        "'>🚦</span>" +
+        "<div class='signal-marker' " +
+        "style='width:20px;height:20px;font-size:11px;" +
+        "border-width:2px;margin-right:8px;'>" +
+
+        "S" +
+
+        "</div>" +
 
         "<span>Traffic Signal</span>" +
 
         "</div>" +
 
+
         "<div class='legend-row'>" +
 
-        "<span style='" +
-        "display:inline-flex;" +
-        "width:18px;" +
-        "height:18px;" +
-        "background:#1565c0;" +
-        "color:white;" +
-        "border-radius:50%;" +
-        "align-items:center;" +
-        "justify-content:center;" +
-        "font-size:14px;" +
-        "font-weight:bold;" +
-        "margin-right:8px;" +
-        "'>↩</span>" +
+        "<div class='uturn-marker' " +
+        "style='width:20px;height:20px;font-size:11px;" +
+        "border-width:2px;margin-right:8px;'>" +
+
+        "U" +
+
+        "</div>" +
 
         "<span>U-Turn</span>" +
 
@@ -858,6 +781,66 @@ legend.addTo(map);
 
 
 /* =========================================================
+   12. FIT MAP TO STUDY AREA
+   ========================================================= */
+
+var allPoints = [];
+
+
+/* Flyover */
+
+flyoverCoordinates.forEach(function(point) {
+
+    allPoints.push(point);
+
+});
+
+
+/* Survey locations */
+
+surveyLocations.forEach(function(location) {
+
+    allPoints.push([
+        location.lat,
+        location.lng
+    ]);
+
+});
+
+
+/* Signals */
+
+trafficSignals.forEach(function(signal) {
+
+    allPoints.push([
+        signal.lat,
+        signal.lng
+    ]);
+
+});
+
+
+/* U-turns */
+
+uTurnLocations.forEach(function(uTurn) {
+
+    allPoints.push([
+        uTurn.lat,
+        uTurn.lng
+    ]);
+
+});
+
+
+map.fitBounds(
+    L.latLngBounds(allPoints),
+    {
+        padding: [50, 50]
+    }
+);
+
+
+/* =========================================================
    13. FIX MAP SIZE
    ========================================================= */
 
@@ -869,7 +852,7 @@ setTimeout(function() {
 
 
 /* =========================================================
-   14. CONSOLE MESSAGE
+   14. CONSOLE
    ========================================================= */
 
 console.log(
@@ -877,7 +860,15 @@ console.log(
 );
 
 console.log(
-    "Traffic survey locations, signals and U-turns loaded."
+    "Survey locations loaded."
+);
+
+console.log(
+    "Traffic signal locations loaded."
+);
+
+console.log(
+    "U-turn locations loaded."
 );
 
 </script>
