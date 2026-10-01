@@ -79,14 +79,9 @@ html, body {
     box-shadow: 0 1px 4px rgba(0,0,0,0.3);
 }
 
-.survey-label::before {
-    display: none;
-}
-
 </style>
 
 </head>
-
 
 <body>
 
@@ -121,17 +116,6 @@ L.tileLayer(
 
 /* =========================================================
    3. G.D. NAIDU FLYOVER / STUDY CORRIDOR
-   =========================================================
-   
-   Coordinates are already converted for Leaflet:
-   
-   [LATITUDE, LONGITUDE]
-   
-   Goldwins
-   ↓
-   Nava India
-   ↓
-   Uppilipalayam
    ========================================================= */
 
 var flyoverCoordinates = [
@@ -231,8 +215,8 @@ var flyoverCoordinates = [
     [11.0226092, 77.0002737],
     [11.0226603, 77.0004018],
     [11.0227432, 77.0005922],
-    [11.0228630, 77.0008430],
 
+    [11.0228630, 77.0008430],
     [11.0231177, 77.0013674],
     [11.0233204, 77.0018005],
     [11.0234547, 77.0020956],
@@ -334,7 +318,7 @@ var flyoverCoordinates = [
 
 
 /* =========================================================
-   4. DRAW RED LINE
+   4. DRAW FLYOVER
    ========================================================= */
 
 var flyover = L.polyline(
@@ -361,7 +345,7 @@ flyover.bindPopup(
 
 
 /* =========================================================
-   6. SURVEY LOCATIONS
+   6. SURVEY LOCATIONS + TRAFFIC DATA
    ========================================================= */
 
 var surveyLocations = [
@@ -369,19 +353,43 @@ var surveyLocations = [
     {
         name: "Goldwins",
         lat: 11.043222,
-        lng: 77.045083
+        lng: 77.045083,
+
+        cityTotal: 73477,
+        cityFlyover: 25358,
+        cityAtGrade: 48119,
+
+        goldwinsTotal: 71063,
+        goldwinsFlyover: 22510,
+        goldwinsAtGrade: 48553
     },
 
     {
         name: "Nava India",
         lat: 11.020806,
-        lng: 76.993389
+        lng: 76.993389,
+
+        cityTotal: 141995,
+        cityFlyover: 59575,
+        cityAtGrade: 82420,
+
+        goldwinsTotal: 154127,
+        goldwinsFlyover: 56086,
+        goldwinsAtGrade: 98041
     },
 
     {
         name: "Uppilipalayam",
         lat: 11.002861,
-        lng: 76.969722
+        lng: 76.969722,
+
+        cityTotal: 29512,
+        cityFlyover: 13364,
+        cityAtGrade: 16148,
+
+        goldwinsTotal: 35808,
+        goldwinsFlyover: 12254,
+        goldwinsAtGrade: 23554
     }
 
 ];
@@ -406,6 +414,8 @@ surveyLocations.forEach(function(location) {
     ).addTo(map);
 
 
+    /* Location name */
+
     marker.bindTooltip(
         location.name,
         {
@@ -417,11 +427,48 @@ surveyLocations.forEach(function(location) {
     );
 
 
+    /* Traffic popup */
+
     marker.bindPopup(
-        "<b>" + location.name + "</b><br><br>" +
-        "Traffic Survey Location<br>" +
-        "Latitude: " + location.lat + "<br>" +
-        "Longitude: " + location.lng
+
+        "<div style='font-family:Arial; min-width:250px;'>" +
+
+        "<h3 style='margin:0 0 8px 0;'>" +
+        location.name +
+        "</h3>" +
+
+        "<b>Traffic Survey Data</b><br><br>" +
+
+        "<b>Towards City</b><br>" +
+
+        "Total Vehicles/day: " +
+        location.cityTotal.toLocaleString() +
+        "<br>" +
+
+        "Flyover Vehicles/day: " +
+        location.cityFlyover.toLocaleString() +
+        "<br>" +
+
+        "At-Grade Vehicles/day: " +
+        location.cityAtGrade.toLocaleString() +
+
+        "<br><br>" +
+
+        "<b>Towards Goldwins</b><br>" +
+
+        "Total Vehicles/day: " +
+        location.goldwinsTotal.toLocaleString() +
+        "<br>" +
+
+        "Flyover Vehicles/day: " +
+        location.goldwinsFlyover.toLocaleString() +
+        "<br>" +
+
+        "At-Grade Vehicles/day: " +
+        location.goldwinsAtGrade.toLocaleString() +
+
+        "</div>"
+
     );
 
 });
@@ -434,14 +481,18 @@ surveyLocations.forEach(function(location) {
 var allPoints = [];
 
 flyoverCoordinates.forEach(function(point) {
+
     allPoints.push(point);
+
 });
 
 surveyLocations.forEach(function(location) {
+
     allPoints.push([
         location.lat,
         location.lng
     ]);
+
 });
 
 map.fitBounds(
@@ -460,12 +511,14 @@ var legend = L.control({
     position: "bottomright"
 });
 
+
 legend.onAdd = function() {
 
     var div = L.DomUtil.create(
         "div",
         "legend"
     );
+
 
     div.innerHTML =
 
@@ -483,8 +536,11 @@ legend.onAdd = function() {
         "<span>Traffic Survey Location</span>" +
         "</div>";
 
+
     return div;
+
 };
+
 
 legend.addTo(map);
 
@@ -494,7 +550,9 @@ legend.addTo(map);
    ========================================================= */
 
 setTimeout(function() {
+
     map.invalidateSize();
+
 }, 500);
 
 
@@ -505,4 +563,5 @@ console.log(
 </script>
 
 </body>
+
 </html>
