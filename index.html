@@ -2,22 +2,24 @@
 <html>
 <head>
   <title>G.D. Naidu Flyover Spatial Mapping</title>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- Local Leaflet Stylesheet -->
-  <link rel="stylesheet" href="leaflet.css" />
-  
+
+  <link rel="stylesheet" href="leaflet.css">
+
   <style>
-    body { 
-      margin: 0; 
-      padding: 0; 
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
     }
-    #map { 
-      height: 100vh; 
-      width: 100%; 
-      background: #e5e3df; 
+
+    #map {
+      height: 100vh;
+      width: 100%;
+      background: #e5e3df;
     }
+
     .legend {
       background: white;
       padding: 12px;
@@ -27,6 +29,7 @@
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
       border-radius: 5px;
     }
+
     .legend i {
       width: 14px;
       height: 14px;
@@ -34,6 +37,7 @@
       margin-right: 8px;
       border-radius: 50%;
     }
+
     .legend .line {
       height: 4px;
       border-radius: 0;
@@ -41,108 +45,364 @@
     }
   </style>
 </head>
+
 <body>
 
 <div id="map"></div>
 
-<!-- Local Script Dependencies -->
 <script src="leaflet.js"></script>
-<script src="data.js"></script>
 
 <script>
-  // 1. Initialize Map view over Coimbatore corridor
-  var map = L.map('map').setView([11.0045, 76.9616], 14);
 
-  // 2. OpenStreetMap Tile Layer
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(map);
+  // ==========================================
+  // 1. INITIALIZE MAP
+  // ==========================================
 
-// 3. Load ONLY the G.D. Naidu Flyover
-fetch('gd_naidu_flyover.geojson')
-  .then(response => response.json())
-  .then(flyoverData => {
+  var map = L.map('map').setView(
+    [11.020, 77.000],
+    13
+  );
 
-    var flyoverLayer = L.geoJSON(flyoverData, {
 
-      style: {
-        color: "#FF0000",
-        weight: 7,
-        opacity: 0.95
-      },
+  // ==========================================
+  // 2. OPENSTREETMAP BASE MAP
+  // ==========================================
 
-      onEachFeature: function(feature, layer) {
-        layer.bindPopup(
-          "<b>G.D. Naidu Flyover</b><br>" +
-          "Goldwins – Uppilipalayam"
+  L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }
+  ).addTo(map);
+
+
+  // ==========================================
+  // 3. LOAD ONLY G.D. NAIDU FLYOVER
+  // ==========================================
+
+  fetch('gd_naidu_flyover.geojson')
+    .then(function(response) {
+
+      if (!response.ok) {
+        throw new Error(
+          'Could not load gd_naidu_flyover.geojson'
         );
       }
 
-    }).addTo(map);
-
-    // Zoom to the flyover
-    if (flyoverLayer.getBounds().isValid()) {
-      map.fitBounds(flyoverLayer.getBounds(), {
-        padding: [30, 30]
-      });
-    }
-
-  })
-  .catch(error => {
-    console.error(
-      "Error loading G.D. Naidu Flyover GeoJSON:",
-      error
-    );
-  });
-
-
-// 4. Load ONLY the G.D. Naidu Flyover GeoJSON
-fetch('gd_naidu_flyover.geojson')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Could not load gd_naidu_flyover.geojson');
-        }
-        return response.json();
+      return response.json();
     })
-    .then(flyoverData => {
 
-        var flyoverLayer = L.geoJSON(flyoverData, {
-            style: {
-                color: '#FF0000',
-                weight: 7,
-                opacity: 1
+    .then(function(flyoverData) {
+
+      var flyoverLayer = L.geoJSON(
+        flyoverData,
+        {
+
+          style: {
+            color: '#FF0000',
+            weight: 7,
+            opacity: 1
+          },
+
+          onEachFeature: function(
+            feature,
+            layer
+          ) {
+
+            layer.bindPopup(
+              '<b>G.D. Naidu Flyover</b><br>' +
+              'Goldwins → Nava India → Uppilipalayam'
+            );
+
+          }
+
+        }
+      ).addTo(map);
+
+
+      // Zoom to flyover
+      if (
+        flyoverLayer.getBounds().isValid()
+      ) {
+
+        map.fitBounds(
+          flyoverLayer.getBounds(),
+          {
+            padding: [40, 40]
+          }
+        );
+
+      }
+
+    })
+
+    .catch(function(error) {
+
+      console.error(
+        'Flyover loading error:',
+        error
+      );
+
+      alert(
+        'G.D. Naidu Flyover GeoJSON could not be loaded.'
+      );
+
+    });
+
+
+  // ==========================================
+  // 4. LOAD SURVEY LOCATIONS
+  // ==========================================
+
+  fetch('survey_locations.geojson')
+
+    .then(function(response) {
+
+      if (!response.ok) {
+        throw new Error(
+          'Could not load survey_locations.geojson'
+        );
+      }
+
+      return response.json();
+
+    })
+
+    .then(function(surveyData) {
+
+      var surveyLayer = L.geoJSON(
+        surveyData,
+        {
+
+          // ------------------------------
+          // Survey point appearance
+          // ------------------------------
+
+          pointToLayer:
+            function(feature, latlng) {
+
+              var p =
+                feature.properties || {};
+
+              var city =
+                Number(
+                  p.total_vehicles_day_towards_city ||
+                  0
+                );
+
+              var goldwins =
+                Number(
+                  p.total_vehicles_day_towards_goldwins ||
+                  0
+                );
+
+              var total =
+                city + goldwins;
+
+              var radius = 9;
+
+              if (total >= 120000) {
+                radius = 16;
+              }
+              else if (total >= 80000) {
+                radius = 13;
+              }
+              else if (total >= 50000) {
+                radius = 10;
+              }
+
+              return L.circleMarker(
+                latlng,
+                {
+                  radius: radius,
+                  fillColor: '#FF6600',
+                  color: '#FFFFFF',
+                  weight: 2,
+                  opacity: 1,
+                  fillOpacity: 0.9
+                }
+              );
+
             },
 
-            onEachFeature: function(feature, layer) {
-                layer.bindPopup(
-                    '<b>G.D. Naidu Flyover</b><br>' +
-                    'Goldwins → Nava India → Uppilipalayam'
-                );
-            }
-        }).addTo(map);
 
-        // Automatically zoom to the complete flyover
-        if (flyoverLayer.getBounds().isValid()) {
-            map.fitBounds(flyoverLayer.getBounds(), {
-                padding: [30, 30]
-            });
+          // ------------------------------
+          // Survey popup
+          // ------------------------------
+
+          onEachFeature:
+            function(feature, layer) {
+
+              var p =
+                feature.properties || {};
+
+              var popup =
+                '<div style="font-family:Arial;">' +
+
+                '<h3 style="margin:0 0 8px 0;">' +
+
+                (p.name || 'Survey Location') +
+
+                '</h3>' +
+
+                '<b>Traffic Survey Location</b>' +
+                '<br><br>';
+
+
+              // Towards City
+
+              if (
+                p.total_vehicles_day_towards_city
+              ) {
+
+                popup +=
+
+                  '<b>Towards City</b><br>' +
+
+                  'Total Vehicles/day: ' +
+
+                  Number(
+                    p.total_vehicles_day_towards_city
+                  ).toLocaleString() +
+
+                  '<br>' +
+
+                  'Flyover Vehicles/day: ' +
+
+                  Number(
+                    p.flyover_vehicles_day_towards_city
+                  ).toLocaleString() +
+
+                  '<br>' +
+
+                  'At-Grade Vehicles/day: ' +
+
+                  Number(
+                    p.at_grade_vehicles_day_towards_city
+                  ).toLocaleString() +
+
+                  '<br><br>';
+
+              }
+
+
+              // Towards Goldwins
+
+              if (
+                p.total_vehicles_day_towards_goldwins
+              ) {
+
+                popup +=
+
+                  '<b>Towards Goldwins</b><br>' +
+
+                  'Total Vehicles/day: ' +
+
+                  Number(
+                    p.total_vehicles_day_towards_goldwins
+                  ).toLocaleString() +
+
+                  '<br>' +
+
+                  'Flyover Vehicles/day: ' +
+
+                  Number(
+                    p.flyover_vehicles_day_towards_goldwins
+                  ).toLocaleString() +
+
+                  '<br>' +
+
+                  'At-Grade Vehicles/day: ' +
+
+                  Number(
+                    p.at_grade_vehicles_day_towards_goldwins
+                  ).toLocaleString() +
+
+                  '<br><br>';
+
+              }
+
+
+              popup +=
+                '</div>';
+
+              layer.bindPopup(popup);
+
+
+              // Permanent location label
+
+              layer.bindTooltip(
+                p.name || 'Survey Location',
+                {
+                  permanent: true,
+                  direction: 'top',
+                  offset: [0, -10]
+                }
+              );
+
+            }
+
         }
+      ).addTo(map);
+
     })
-    .catch(error => {
-        console.error('Flyover GeoJSON error:', error);
+
+    .catch(function(error) {
+
+      console.error(
+        'Survey location loading error:',
+        error
+      );
+
     });
-  // 6. Map Legend
-  var legend = L.control({position: 'bottomright'});
-  legend.onAdd = function (map) {
-    var div = L.DomUtil.create('div', 'legend');
-    div.innerHTML += '<b>Spatial Layers</b><br>';
-    div.innerHTML += '<i class="line" style="background: #FF0000"></i> Elevated Flyover Deck<br>';
-    div.innerHTML += '<i class="line" style="background: #0078FF"></i> Surface Roads & U-Turns<br>';
-    div.innerHTML += '<i style="background: #FFD700; border: 1px solid #000"></i> Junctions & Signals<br>';
-    return div;
-  };
+
+
+  // ==========================================
+  // 5. LEGEND
+  // ==========================================
+
+  var legend =
+    L.control({
+      position: 'bottomright'
+    });
+
+
+  legend.onAdd =
+    function(map) {
+
+      var div =
+        L.DomUtil.create(
+          'div',
+          'legend'
+        );
+
+
+      div.innerHTML +=
+        '<b>Spatial Layers</b><br>';
+
+
+      div.innerHTML +=
+        '<i class="line" ' +
+        'style="background:#FF0000">' +
+        '</i>' +
+        ' G.D. Naidu Flyover<br>';
+
+
+      div.innerHTML +=
+        '<i style="background:#FF6600;' +
+        'border:1px solid #000">' +
+        '</i>' +
+        ' Traffic Survey Location<br>';
+
+
+      return div;
+
+    };
+
+
   legend.addTo(map);
+
 </script>
 
 </body>
