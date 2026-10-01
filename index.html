@@ -75,20 +75,27 @@
 var geojsonLayer = L.geoJSON(corridorData, {
 
     filter: function(feature) {
-        var name = "";
+    var p = feature.properties || {};
 
-        if (feature.properties) {
-            name =
-                feature.properties.name ||
-                feature.properties.Name ||
-                feature.properties.NAME ||
-                "";
-        }
+    var name = (
+        p.name ||
+        p.Name ||
+        p.NAME ||
+        ""
+    ).toLowerCase();
 
-        return name.toLowerCase().includes("g. d. naidu flyover") ||
-               name.toLowerCase().includes("g.d. naidu flyover") ||
-               name.toLowerCase().includes("gd naidu flyover");
-    },
+    var altName = (
+        p.alt_name ||
+        p["bridge:name"] ||
+        ""
+    ).toLowerCase();
+
+    var isFlyover =
+        name.includes("naidu flyover") ||
+        altName.includes("naidu flyover");
+
+    return isFlyover;
+},
 
     style: function(feature) {
         return {
