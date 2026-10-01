@@ -79,6 +79,10 @@ html, body {
     box-shadow: 0 1px 4px rgba(0,0,0,0.3);
 }
 
+.survey-label::before {
+    display: none;
+}
+
 </style>
 
 </head>
@@ -116,6 +120,18 @@ L.tileLayer(
 
 /* =========================================================
    3. G.D. NAIDU FLYOVER / STUDY CORRIDOR
+   =========================================================
+
+   Coordinates are already converted for Leaflet:
+
+   [LATITUDE, LONGITUDE]
+
+   Goldwins
+   ↓
+   Nava India
+   ↓
+   Uppilipalayam
+
    ========================================================= */
 
 var flyoverCoordinates = [
@@ -318,7 +334,7 @@ var flyoverCoordinates = [
 
 
 /* =========================================================
-   4. DRAW FLYOVER
+   4. DRAW RED LINE
    ========================================================= */
 
 var flyover = L.polyline(
@@ -427,20 +443,14 @@ surveyLocations.forEach(function(location) {
     );
 
 
-    /* Traffic popup */
+    /* Traffic volume popup */
 
     marker.bindPopup(
+        "<b>" + location.name + "</b><br><br>" +
 
-        "<div style='font-family:Arial; min-width:250px;'>" +
-
-        "<h3 style='margin:0 0 8px 0;'>" +
-        location.name +
-        "</h3>" +
-
-        "<b>Traffic Survey Data</b><br><br>" +
+        "<b>TRAFFIC VOLUME</b><br><br>" +
 
         "<b>Towards City</b><br>" +
-
         "Total Vehicles/day: " +
         location.cityTotal.toLocaleString() +
         "<br>" +
@@ -465,10 +475,7 @@ surveyLocations.forEach(function(location) {
         "<br>" +
 
         "At-Grade Vehicles/day: " +
-        location.goldwinsAtGrade.toLocaleString() +
-
-        "</div>"
-
+        location.goldwinsAtGrade.toLocaleString()
     );
 
 });
@@ -519,7 +526,6 @@ legend.onAdd = function() {
         "legend"
     );
 
-
     div.innerHTML =
 
         "<div class='legend-title'>" +
@@ -535,7 +541,6 @@ legend.onAdd = function() {
         "<span class='orange-circle'></span>" +
         "<span>Traffic Survey Location</span>" +
         "</div>";
-
 
     return div;
 
