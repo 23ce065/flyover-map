@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -33,7 +34,7 @@ html, body {
     color: #222;
     box-shadow: 0 0 15px rgba(0,0,0,0.25);
     border-radius: 6px;
-    min-width: 200px;
+    min-width: 210px;
 }
 
 .legend-title {
@@ -51,8 +52,9 @@ html, body {
 .red-line {
     width: 30px;
     height: 5px;
-    background: red;
+    background: #ff0000;
     margin-right: 8px;
+    border-radius: 2px;
 }
 
 .orange-circle {
@@ -82,7 +84,9 @@ html, body {
 }
 
 </style>
+
 </head>
+
 
 <body>
 
@@ -93,10 +97,13 @@ html, body {
 <script>
 
 /* =========================================================
-   1. CREATE MAP
+   1. MAP
    ========================================================= */
 
-var map = L.map("map");
+var map = L.map("map").setView(
+    [11.020806, 76.993389],
+    13
+);
 
 
 /* =========================================================
@@ -113,18 +120,23 @@ L.tileLayer(
 
 
 /* =========================================================
-   3. G.D. NAIDU FLYOVER / AVINASHI ROAD
+   3. G.D. NAIDU FLYOVER / STUDY CORRIDOR
    =========================================================
    
-   IMPORTANT:
-   Coordinates are [longitude, latitude] in GeoJSON.
-   Leaflet needs [latitude, longitude].
+   Coordinates are already converted for Leaflet:
    
-   This line follows the actual Avinashi Road corridor
-   around the three survey locations.
+   [LATITUDE, LONGITUDE]
+   
+   Goldwins
+   ↓
+   Nava India
+   ↓
+   Uppilipalayam
    ========================================================= */
 
 var flyoverCoordinates = [
+
+    /* Uppilipalayam side */
 
     [11.0024033, 76.9667998],
     [11.0026188, 76.9678953],
@@ -137,13 +149,13 @@ var flyoverCoordinates = [
     [11.0030064, 76.9699555],
     [11.0030530, 76.9701233],
 
-    [11.0031478, 76.9708264],
     [11.0032676, 76.9711409],
     [11.0035480, 76.9718403],
     [11.0038370, 76.9724357],
     [11.0041293, 76.9730134],
     [11.0043886, 76.9734395],
     [11.0044524, 76.9734026],
+
     [11.0050310, 76.9744258],
     [11.0053818, 76.9749850],
     [11.0056231, 76.9753619],
@@ -160,6 +172,9 @@ var flyoverCoordinates = [
     [11.0110998, 76.9830518],
     [11.0116305, 76.9840206],
     [11.0116852, 76.9841164],
+
+    /* Nava India area */
+
     [11.0122932, 76.9851796],
     [11.0125527, 76.9855550],
     [11.0126922, 76.9857478],
@@ -193,6 +208,7 @@ var flyoverCoordinates = [
     [11.0204771, 76.9926314],
     [11.0207126, 76.9929582],
     [11.0209312, 76.9933261],
+
     [11.0211089, 76.9936681],
     [11.0212261, 76.9939886],
     [11.0213261, 76.9942863],
@@ -216,6 +232,7 @@ var flyoverCoordinates = [
     [11.0226603, 77.0004018],
     [11.0227432, 77.0005922],
     [11.0228630, 77.0008430],
+
     [11.0231177, 77.0013674],
     [11.0233204, 77.0018005],
     [11.0234547, 77.0020956],
@@ -251,6 +268,8 @@ var flyoverCoordinates = [
     [11.0257228, 77.0167539],
     [11.0257991, 77.0173667],
     [11.0258366, 77.0175840],
+
+    /* Goldwins side */
 
     [11.0267837, 77.0215362],
     [11.0269044, 77.0218028],
@@ -304,19 +323,24 @@ var flyoverCoordinates = [
     [11.0411801, 77.0415723],
     [11.0413040, 77.0417614],
 
+    [11.0425194, 77.0441299],
+    [11.0428771, 77.0447430],
+    [11.0431152, 77.0452081],
+    [11.0432563, 77.0454825],
     [11.0435120, 77.0459210],
     [11.0436434, 77.0460580]
+
 ];
 
 
 /* =========================================================
-   4. DRAW RED FLYOVER LINE
+   4. DRAW RED LINE
    ========================================================= */
 
 var flyover = L.polyline(
     flyoverCoordinates,
     {
-        color: "#FF0000",
+        color: "#ff0000",
         weight: 8,
         opacity: 1,
         lineJoin: "round",
@@ -338,19 +362,6 @@ flyover.bindPopup(
 
 /* =========================================================
    6. SURVEY LOCATIONS
-   =========================================================
-   
-   Your three coordinates converted from
-   DMS to decimal degrees:
-   
-   1. 11°02'35.6\"N 77°02'42.3\"E
-      = 11.043222, 77.045083
-   
-   2. 11°01'14.9\"N 76°59'36.2\"E
-      = 11.020806, 76.993389
-   
-   3. 11°00'10.3\"N 76°58'11.0\"E
-      = 11.002861, 76.969722
    ========================================================= */
 
 var surveyLocations = [
@@ -377,7 +388,7 @@ var surveyLocations = [
 
 
 /* =========================================================
-   7. ADD SURVEY POINTS
+   7. ORANGE SURVEY MARKERS
    ========================================================= */
 
 surveyLocations.forEach(function(location) {
@@ -386,8 +397,8 @@ surveyLocations.forEach(function(location) {
         [location.lat, location.lng],
         {
             radius: 9,
-            fillColor: "#FF6600",
-            color: "#FFFFFF",
+            fillColor: "#ff6600",
+            color: "#ffffff",
             weight: 3,
             opacity: 1,
             fillOpacity: 0.95
@@ -417,42 +428,21 @@ surveyLocations.forEach(function(location) {
 
 
 /* =========================================================
-   8. CREATE ONE COMMON BOUNDARY
-   =========================================================
-   
-   This is important.
-   
-   The map will now automatically show BOTH:
-   - the red flyover
-   - all 3 survey locations
-   
-   together.
+   8. FIT MAP TO ALL FEATURES
    ========================================================= */
 
 var allPoints = [];
 
-
-/* Add flyover points */
-
 flyoverCoordinates.forEach(function(point) {
-
     allPoints.push(point);
-
 });
-
-
-/* Add survey points */
 
 surveyLocations.forEach(function(location) {
-
-    allPoints.push(
-        [location.lat, location.lng]
-    );
-
+    allPoints.push([
+        location.lat,
+        location.lng
+    ]);
 });
-
-
-/* Fit entire study area */
 
 map.fitBounds(
     L.latLngBounds(allPoints),
@@ -470,14 +460,12 @@ var legend = L.control({
     position: "bottomright"
 });
 
-
 legend.onAdd = function() {
 
     var div = L.DomUtil.create(
         "div",
         "legend"
     );
-
 
     div.innerHTML =
 
@@ -495,32 +483,23 @@ legend.onAdd = function() {
         "<span>Traffic Survey Location</span>" +
         "</div>";
 
-
     return div;
-
 };
-
 
 legend.addTo(map);
 
 
 /* =========================================================
-   10. MAP SIZE FIX
+   10. FIX MAP SIZE
    ========================================================= */
 
 setTimeout(function() {
-
     map.invalidateSize();
-
 }, 500);
 
 
-/* =========================================================
-   11. CONSOLE MESSAGE
-   ========================================================= */
-
 console.log(
-    "G.D. Naidu Flyover study map loaded."
+    "G.D. Naidu Flyover Study Map loaded successfully."
 );
 
 </script>
